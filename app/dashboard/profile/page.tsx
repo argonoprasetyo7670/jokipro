@@ -1,34 +1,87 @@
-"use client";
-
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import {
-  IconUser,
-  IconMail,
-  IconPhone,
   IconCamera,
-  IconShieldCheck,
   IconStarFilled,
   IconBriefcase,
   IconCash,
-  IconEdit,
-  IconDeviceFloppy,
+  IconEdit
 } from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { IconInput } from "@/components/icon-input";
 import { PageHeader } from "@/components/page-header";
 import { PageTransition, AnimatedCard } from "@/components/motion";
+import { ProfileForm } from "@/components/dashboard/profile-form";
+import { ProfileAvatar } from "@/components/dashboard/profile-avatar";
+import { formatRupiah } from "@/lib/utils";
 
-const user = {
-  name: "John Doe", email: "johndoe@example.com", phone: "+62 812 3456 7890",
-  role: "CLIENT", joinDate: "Januari 2026", rating: 4.9, totalTasks: 15, totalSpent: "Rp 2.4 Jt",
-  bio: "Mahasiswa Teknik Informatika semester 6. Sering membutuhkan bantuan untuk tugas-tugas yang bersamaan deadline-nya.",
-};
+export default async function ProfilePage() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
 
-const skills = ["React", "Next.js", "Python", "UI/UX Design", "Technical Writing"];
+  const userId = session.user.id;
+  
+  const userData = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      workerProfile: true,
+      _count: {
+        select: {
+          postedTasks: true,
+          workerOrders: true,
+        }
+      }
+    }
+  });
 
-export default function ProfilePage() {
+  if (!userData) {
+    redirect("/login");
+  }
+
+  const isWorker = userData.role === "WORKER";
+  const joinDate = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(userData.createdAt);
+  const initial = userData.name ? userData.name.substring(0, 2).toUpperCase() : "JP";
+
+  // Calculate stats based on role
+  let totalTasks = 0;
+  let totalSpent = "Rp 0";
+  let rating = 0;
+
+  if (isWorker) {
+    totalTasks = userData._count.workerOrders;
+    // Calculate total earned for worker
+    const orders = await prisma.order.findMany({
+      where: { workerId: userId, status: "RELEASED" },
+      select: { amount: true, platformFee: true }
+    });
+    const earned = orders.reduce((sum, order) => sum + (order.amount - order.platformFee), 0);
+    totalSpent = formatRupiah(earned);
+    rating = userData.workerProfile?.rating || 0;
+  } else {
+    totalTasks = userData._count.postedTasks;
+    const orders = await prisma.order.aggregate({
+      where: { clientId: userId }, // include all orders, even ESCROW_HOLD
+      _sum: { amount: true }
+    });
+    totalSpent = formatRupiah(orders._sum.amount || 0);
+    rating = 5.0; // Clients don't have public ratings yet, default to 5.0
+  }
+
+  const formattedUser = {
+    name: userData.name || "",
+    email: userData.email,
+    phone: userData.phone || "",
+    role: userData.role,
+    kycStatus: userData.workerProfile?.kycStatus || "NONE",
+    bio: userData.workerProfile?.bio || "",
+    skills: userData.workerProfile?.skills || [],
+    joinDate,
+    rating,
+    totalTasks,
+    totalSpent
+  };
   return (
     <PageTransition className="max-w-3xl mx-auto space-y-6">
       <AnimatedCard>
@@ -46,23 +99,16 @@ export default function ProfilePage() {
           <CardContent className="px-4 sm:px-6 pb-6">
             {/* Avatar */}
             <div className="relative -mt-12 sm:-mt-14 mb-4 flex items-end gap-4">
-              <div className="relative">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold border-4 border-card shadow-xl">
-                  JD
-                </div>
-                <button className="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary flex items-center justify-center text-white shadow-lg hover:bg-primary/80 transition-colors">
-                  <IconCamera size={14} />
-                </button>
-              </div>
+              <ProfileAvatar initials={initial} imageUrl={userData.image} />
               <div className="pb-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg sm:text-xl font-bold">{user.name}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold">{formattedUser.name || formattedUser.email}</h2>
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-lg bg-primary/10 text-primary">
-                    {user.role}
+                    {formattedUser.role}
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  Bergabung sejak {user.joinDate}
+                  Bergabung sejak {formattedUser.joinDate}
                 </p>
               </div>
             </div>
@@ -72,23 +118,23 @@ export default function ProfilePage() {
               <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
                 <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
                   <IconStarFilled size={16} className="text-amber-400" />
-                  {user.rating}
+                  {formattedUser.rating}
                 </div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Rating</div>
               </div>
               <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
                 <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
                   <IconBriefcase size={16} className="text-primary" />
-                  {user.totalTasks}
+                  {formattedUser.totalTasks}
                 </div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Total Tugas</div>
               </div>
               <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
                 <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
                   <IconCash size={16} className="text-emerald-400" />
-                  {user.totalSpent}
+                  <span className="truncate">{formattedUser.totalSpent}</span>
                 </div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Transaksi</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">{isWorker ? "Pendapatan" : "Transaksi"}</div>
               </div>
             </div>
           </CardContent>
@@ -99,64 +145,13 @@ export default function ProfilePage() {
       <AnimatedCard>
         <Card className="border-border/50">
           <CardContent className="p-4 sm:p-6 space-y-5">
-            <h2 className="font-semibold flex items-center gap-2">
+            <h2 className="font-semibold flex items-center gap-2 mb-6">
               <IconEdit size={20} className="text-primary" />
-              Informasi Pribadi
+              Pengaturan Profil
             </h2>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Nama Lengkap</Label>
-                <IconInput id="name" icon={IconUser} defaultValue={user.name} className="mt-2" />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <IconInput id="email" icon={IconMail} type="email" defaultValue={user.email} className="mt-2" />
-              </div>
-              <div>
-                <Label htmlFor="phone">No. Telepon</Label>
-                <IconInput id="phone" icon={IconPhone} type="tel" defaultValue={user.phone} className="mt-2" />
-              </div>
-              <div>
-                <Label>Verifikasi</Label>
-                <div className="flex items-center gap-2 h-12 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 mt-2">
-                  <IconShieldCheck size={18} className="text-emerald-400" />
-                  <span className="text-sm text-emerald-400 font-medium">Email Terverifikasi</span>
-                </div>
-              </div>
-            </div>
+            <ProfileForm user={formattedUser} />
 
-            <div>
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" rows={3} defaultValue={user.bio} className="mt-2 rounded-xl resize-none" />
-            </div>
-
-            <Button className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 gap-2">
-              <IconDeviceFloppy size={18} />
-              Simpan Perubahan
-            </Button>
-          </CardContent>
-        </Card>
-      </AnimatedCard>
-
-      {/* Skills */}
-      <AnimatedCard>
-        <Card className="border-border/50">
-          <CardContent className="p-4 sm:p-6 space-y-4">
-            <h2 className="font-semibold">Keahlian / Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="inline-flex items-center text-sm px-3 py-1.5 rounded-xl bg-primary/10 text-primary font-medium"
-                >
-                  {skill}
-                </span>
-              ))}
-              <Button variant="outline" size="sm" className="rounded-xl border-dashed text-muted-foreground hover:text-primary hover:border-primary">
-                + Tambah Skill
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </AnimatedCard>

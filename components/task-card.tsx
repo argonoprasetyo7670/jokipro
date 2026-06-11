@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +20,7 @@ export interface TaskData {
   deadline: string;
   urgency: "high" | "medium" | "low";
   bids: number;
-  client: { name: string; rating: number };
+  client: { id?: string; name: string; rating: number };
   description: string;
   tags: string[];
 }

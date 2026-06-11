@@ -10,7 +10,7 @@ const s3Client = new S3Client({
   forcePathStyle: true, // IMPORTANT for MinIO compatibility (uses /bucket/key instead of bucket.endpoint/key)
 });
 
-export async function uploadFileToMinio(file: File): Promise<string> {
+export async function uploadFileToMinio(file: File, prefix: string = "tasks"): Promise<string> {
   const bucketName = process.env.MINIO_BUCKET;
   
   if (!bucketName) {
@@ -22,7 +22,7 @@ export async function uploadFileToMinio(file: File): Promise<string> {
   
   // Clean filename: remove spaces and special chars, prepend timestamp
   const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-  const objectKey = `tasks/${Date.now()}-${cleanFileName}`;
+  const objectKey = `${prefix}/${Date.now()}-${cleanFileName}`;
 
   const command = new PutObjectCommand({
     Bucket: bucketName,

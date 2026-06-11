@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useSession } from "next-auth/react"
+import type { Session } from "next-auth"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -38,6 +38,7 @@ const adminNav: NavItem[] = [
 
 const clientNav: NavItem[] = [
   { url: "/dashboard", title: "Overview", icon: IconLayoutDashboard },
+  { url: "/dashboard/my-tasks", title: "Tugas Saya", icon: IconListSearch },
   { url: "/dashboard/workers", title: "Cari Worker", icon: IconUsers },
   { url: "/dashboard/tasks/new", title: "Buat Tugas", icon: IconPlus },
   { url: "/dashboard/orders", title: "Pesanan Saya", icon: IconPackage },
@@ -51,8 +52,11 @@ const workerNav: NavItem[] = [
   { url: "/dashboard/profile", title: "Profil", icon: IconUser },
 ]
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession()
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  session: Session | null;
+}
+
+export function AppSidebar({ session, ...props }: AppSidebarProps) {
   const pathname = usePathname()
   const { setOpenMobile, isMobile } = useSidebar()
 
