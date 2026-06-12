@@ -147,7 +147,7 @@ model Task {
   order    Order?
   messages Message[]
   dispute  Dispute?
-  review   Review?
+  reviews  Review[]
 }
 
 model Bid {
@@ -220,7 +220,7 @@ model Dispute {
 
 model Review {
   id         String @id @default(cuid())
-  taskId     String @unique
+  taskId     String
   task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
   reviewerId String
   reviewer   User   @relation("GivenReviews", fields: [reviewerId], references: [id])
@@ -231,6 +231,8 @@ model Review {
   comment String? @db.Text
 
   createdAt DateTime @default(now())
+
+  @@unique([taskId, reviewerId])
 }
 
 model Notification {

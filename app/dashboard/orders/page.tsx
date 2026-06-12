@@ -178,22 +178,30 @@ export default async function OrdersPage(props: { searchParams?: Promise<{ statu
                       <div className="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0">
                         <div className="text-base sm:text-lg font-bold text-primary">{formatCurrency(order.amount)}</div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
-                            <IconMessageCircle size={16} />
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
+                            <Link href={`/dashboard/orders/${order.id}`}>
+                              <IconMessageCircle size={16} />
+                            </Link>
                           </Button>
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
-                            <IconEye size={16} />
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
+                            <Link href={`/dashboard/orders/${order.id}`}>
+                              <IconEye size={16} />
+                            </Link>
                           </Button>
                         </div>
                         {userRole === "CLIENT" && taskStatus === "IN_REVIEW" && (
-                          <Button size="sm" className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs hover:from-emerald-400 hover:to-teal-400">
-                            Terima Hasil
+                          <Button size="sm" className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs hover:from-emerald-400 hover:to-teal-400" asChild>
+                            <Link href={`/dashboard/orders/${order.id}`}>
+                              Terima Hasil
+                            </Link>
                           </Button>
                         )}
                         {taskStatus === "COMPLETED" && (
-                          <Button variant="outline" size="sm" className="rounded-lg border-amber-500/30 text-amber-400 text-xs hover:bg-amber-500/10">
-                            <IconStarFilled size={14} />
-                            Beri Rating
+                          <Button variant="outline" size="sm" className="rounded-lg border-amber-500/30 text-amber-400 text-xs hover:bg-amber-500/10" asChild>
+                            <Link href={`/dashboard/orders/${order.id}`}>
+                              <IconStarFilled size={14} />
+                              Beri Rating
+                            </Link>
                           </Button>
                         )}
                       </div>
