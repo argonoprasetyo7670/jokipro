@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-const profileSchema = z.object({
+export const profileSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter"),
   phone: z.string().optional(),
   bio: z.string().optional(),
@@ -25,9 +25,9 @@ export async function updateProfileAction(formData: FormData) {
   const skills = formData.getAll("skills").map(String).filter(Boolean);
 
   const rawData = {
-    name: formData.get("name") as string,
-    phone: formData.get("phone") as string,
-    bio: formData.get("bio") as string,
+    name: formData.get("name")?.toString() || "",
+    phone: formData.get("phone")?.toString() || "",
+    bio: formData.get("bio")?.toString() || "",
     skills,
   };
 

@@ -29,6 +29,17 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
   const session = await auth();
   const userRole = session?.user?.role || "CLIENT";
   
+  let workerKycStatus = "NONE";
+  if (userRole === "WORKER" && session?.user?.id) {
+    const wp = await prisma.workerProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { kycStatus: true }
+    });
+    if (wp) {
+      workerKycStatus = wp.kycStatus;
+    }
+  }
+  
   const dbTask = await prisma.task.findUnique({
     where: { id },
     include: {
@@ -246,9 +257,22 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           </AnimatedCard>
 
           {/* Quick Bid (Only for Worker) */}
-          {userRole === "WORKER" && task.status === "OPEN" && (
+          {userRole === "WORKER" && task.status === "OPEN" && workerKycStatus === "APPROVED" && (
             <AnimatedCard>
               <BidForm taskId={task.id} />
+            </AnimatedCard>
+          )}
+
+          {userRole === "WORKER" && task.status === "OPEN" && workerKycStatus !== "APPROVED" && (
+            <AnimatedCard>
+              <Card className="border-border/50 bg-amber-500/10 border-amber-500/20">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <h3 className="font-semibold text-sm mb-1 text-amber-600 dark:text-amber-400">Akun Sedang Direview</h3>
+                  <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
+                    Anda belum dapat mengajukan penawaran karena akun profil Anda masih menunggu persetujuan dari Admin.
+                  </p>
+                </CardContent>
+              </Card>
             </AnimatedCard>
           )}
 

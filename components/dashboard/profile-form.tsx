@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import {
   IconUser,
   IconMail,
@@ -13,47 +14,70 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IconInput } from "@/components/icon-input";
-import { updateProfileAction } from "@/lib/actions/profile";
+import { updateProfileAction, profileSchema } from "@/lib/actions/profile";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 export function ProfileForm({ user }: { user: any }) {
   const [isPending, startTransition] = useTransition();
-  const [skills, setSkills] = useState<string[]>(user.skills || []);
   const [newSkill, setNewSkill] = useState("");
   const isWorker = user.role === "WORKER";
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema as any),
+    defaultValues: {
+      name: user.name || "",
+      phone: user.phone || "",
+      bio: user.bio || "",
+      skills: user.skills || [],
+    },
+  });
+
+  const skills = watch("skills") || [];
+
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
+      setValue("skills", [...skills, newSkill.trim()], { shouldValidate: true });
       setNewSkill("");
     }
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setSkills(skills.filter(s => s !== skillToRemove));
+    setValue("skills", skills.filter((s) => s !== skillToRemove), { shouldValidate: true });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    // Append all skills to form data
-    skills.forEach(skill => formData.append("skills", skill));
+  const onSubmit = (data: z.infer<typeof profileSchema>, e?: React.BaseSyntheticEvent) => {
+    if (!e) return;
+    const formData = new FormData(e.target);
+    
+    // Replace skills in formData
+    formData.delete("skills");
+    data.skills?.forEach((skill) => formData.append("skills", skill));
 
     startTransition(async () => {
       try {
         await updateProfileAction(formData);
-        alert("Profil berhasil diperbarui!");
+        toast.success("Profil berhasil diperbarui!");
       } catch (err: any) {
-        alert(err.message || "Gagal memperbarui profil");
+        toast.error(err.message || "Gagal memperbarui profil");
       }
     });
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="name">Nama Lengkap</Label>
-          <IconInput id="name" name="name" icon={IconUser} defaultValue={user.name} className="mt-2" required />
+          <IconInput id="name" icon={IconUser} className={`mt-2 ${errors.name ? "border-red-500" : ""}`} {...register("name")} />
+          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
@@ -62,7 +86,8 @@ export function ProfileForm({ user }: { user: any }) {
         </div>
         <div>
           <Label htmlFor="phone">No. Telepon</Label>
-          <IconInput id="phone" name="phone" icon={IconPhone} type="tel" defaultValue={user.phone} className="mt-2" />
+          <IconInput id="phone" icon={IconPhone} type="tel" className={`mt-2 ${errors.phone ? "border-red-500" : ""}`} {...register("phone")} />
+          {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
         </div>
         <div>
           <Label>Status Verifikasi</Label>
@@ -81,12 +106,12 @@ export function ProfileForm({ user }: { user: any }) {
             <Label htmlFor="bio">Bio / Tentang Saya</Label>
             <Textarea 
               id="bio" 
-              name="bio"
               rows={4} 
-              defaultValue={user.bio} 
-              className="mt-2 rounded-xl resize-none" 
+              className={`mt-2 rounded-xl resize-none ${errors.bio ? "border-red-500" : ""}`} 
               placeholder="Ceritakan pengalaman dan keahlian Anda..."
+              {...register("bio")}
             />
+            {errors.bio && <p className="text-xs text-red-500 mt-1">{errors.bio.message}</p>}
           </div>
 
           <div className="space-y-4 pt-2">

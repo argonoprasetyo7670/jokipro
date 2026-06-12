@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
 import { IconCamera, IconLoader2 } from "@tabler/icons-react";
 import { updateAvatarAction } from "@/lib/actions/profile";
 import Image from "next/image";
@@ -19,12 +20,12 @@ export function ProfileAvatar({ initials, imageUrl }: ProfileAvatarProps) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Hanya file gambar yang diperbolehkan");
+      toast.error("Hanya file gambar yang diperbolehkan");
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("Ukuran gambar maksimal 2MB");
+      toast.error("Ukuran gambar maksimal 2MB");
       return;
     }
 
@@ -34,8 +35,9 @@ export function ProfileAvatar({ initials, imageUrl }: ProfileAvatarProps) {
     startTransition(async () => {
       try {
         await updateAvatarAction(formData);
+        toast.success("Foto profil berhasil diperbarui");
       } catch (error: any) {
-        alert(error.message || "Gagal mengunggah foto profil");
+        toast.error(error.message || "Gagal mengunggah foto profil");
       }
       
       // Reset input so the same file can be selected again if needed

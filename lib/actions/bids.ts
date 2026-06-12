@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-const bidSchema = z.object({
+export const bidSchema = z.object({
   taskId: z.string().min(1, "Task ID is required"),
   amount: z.coerce.number().min(10000, "Harga penawaran minimal Rp 10.000"),
   estimatedDays: z.coerce.number().min(1, "Estimasi waktu minimal 1 hari"),
@@ -21,6 +21,16 @@ export async function createBidAction(formData: FormData) {
 
   if (session.user.role !== "WORKER") {
     throw new Error("Hanya Worker yang dapat mengajukan penawaran");
+  }
+
+  // Check if Worker is APPROVED
+  const workerProfile = await prisma.workerProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { kycStatus: true }
+  });
+
+  if (!workerProfile || workerProfile.kycStatus !== "APPROVED") {
+    throw new Error("Akun Anda sedang direview oleh Admin. Anda belum dapat mengirim penawaran.");
   }
 
   const rawData = {

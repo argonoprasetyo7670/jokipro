@@ -5,6 +5,8 @@ import { Separator } from "@/components/ui/separator"
 import { NotificationDropdown } from "@/components/notification-dropdown"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
 import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { prisma } from "@/lib/prisma"
 
 export default async function DashboardLayout({
   children,
@@ -12,6 +14,23 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
+
+  if (!session?.user?.id) {
+    redirect("/login")
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { workerProfile: true }
+  })
+
+  if (dbUser?.role === "WORKER") {
+    const p = dbUser.workerProfile
+    const isOnboarded = p && p.bio && p.skills.length > 0 && p.university && p.major
+    if (!isOnboarded) {
+      redirect("/onboarding/worker")
+    }
+  }
 
   return (
     <SidebarProvider>

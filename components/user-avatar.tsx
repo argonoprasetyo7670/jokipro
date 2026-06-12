@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserAvatarProps {
   name: string;
+  image?: string | null;
   gradient?: string;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
@@ -26,12 +27,14 @@ function getInitials(name: string) {
 
 export function UserAvatar({
   name,
+  image,
   gradient = "from-violet-500 to-indigo-600",
   size = "md",
   className,
 }: UserAvatarProps) {
   return (
     <Avatar className={cn(sizeClasses[size], className)}>
+      {image && <AvatarImage src={image} alt={name} />}
       <AvatarFallback
         className={cn(
           "bg-gradient-to-br text-white font-bold border-0",

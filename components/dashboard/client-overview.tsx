@@ -91,14 +91,14 @@ export function ClientOverview({ userName, data }: { userName: string; data: Cli
         </AnimatedCard>
 
         <AnimatedCard>
-          <Link href="/dashboard/orders">
+          <Link href="/dashboard/my-tasks">
             <Card className="group border-border/50 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all duration-300">
               <CardContent className="flex items-center gap-4 p-5">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                   <IconClock size={24} />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-sm sm:text-base">Riwayat Pesanan</div>
+                  <div className="font-semibold text-sm sm:text-base">Daftar Tugas Saya</div>
                   <div className="text-xs text-muted-foreground">
                     Lihat semua tugas yang telah Anda posting
                   </div>
@@ -115,7 +115,7 @@ export function ClientOverview({ userName, data }: { userName: string; data: Cli
           <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/50">
             <h2 className="font-semibold text-sm sm:text-base">Tugas Terbaru Anda</h2>
             <Link
-              href="/dashboard/orders"
+              href="/dashboard/my-tasks"
               className="text-xs text-primary hover:underline flex items-center gap-1"
             >
               Lihat Semua <IconArrowRight size={14} />

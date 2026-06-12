@@ -29,6 +29,7 @@ interface WorkerData {
     budget: number;
     deadline: string;
   }[];
+  kycStatus: string;
 }
 
 export function WorkerOverview({ userName, data }: { userName: string; data: WorkerData }) {
@@ -46,6 +47,22 @@ export function WorkerOverview({ userName, data }: { userName: string; data: Wor
           description="Berikut ringkasan aktivitas pengerjaan tugas Anda di JokiPro."
         />
       </AnimatedCard>
+
+      {data.kycStatus !== "APPROVED" && (
+        <AnimatedCard>
+          <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl flex items-start sm:items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+              <IconClock className="text-amber-500" size={20} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amber-600 dark:text-amber-400">Akun Dalam Proses Review</h3>
+              <p className="text-xs sm:text-sm text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+                Profil Anda sedang diperiksa oleh tim Admin. Selama proses ini, Anda belum dapat mengajukan penawaran pada tugas. Mohon menunggu maksimal 1x24 jam.
+              </p>
+            </div>
+          </div>
+        </AnimatedCard>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((stat) => (

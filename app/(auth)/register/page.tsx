@@ -11,17 +11,55 @@ import {
   IconBriefcase,
   IconCode,
   IconCheck,
+  IconEye,
+  IconEyeOff,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { IconInput } from "@/components/icon-input";
 import { PageTransition, MotionDiv, fadeInUp } from "@/components/motion";
+import { loginWithGoogleAction, registerAction, registerSchema } from "@/lib/actions/auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 type Role = "CLIENT" | "WORKER";
 
 export default function RegisterPage() {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPending, startTransition] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema as any),
+    defaultValues: { name: "", email: "", password: "", role: undefined },
+  });
+
+  const selectedRole = watch("role");
+
+  const onSubmit = (data: z.infer<typeof registerSchema>) => {
+    setError(null);
+    startTransition(true);
+    registerAction(data)
+      .then((result) => {
+        if (result?.error) {
+          setError(result.error);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        startTransition(false);
+      });
+  };
 
   return (
     <PageTransition className="w-full max-w-md space-y-0">
@@ -44,7 +82,7 @@ export default function RegisterPage() {
       <MotionDiv variants={fadeInUp} className="pt-8 grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={() => setSelectedRole("CLIENT")}
+          onClick={() => setValue("role", "CLIENT", { shouldValidate: true })}
           className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${
             selectedRole === "CLIENT"
               ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
@@ -67,7 +105,7 @@ export default function RegisterPage() {
 
         <button
           type="button"
-          onClick={() => setSelectedRole("WORKER")}
+          onClick={() => setValue("role", "WORKER", { shouldValidate: true })}
           className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${
             selectedRole === "WORKER"
               ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
@@ -88,13 +126,20 @@ export default function RegisterPage() {
           </span>
         </button>
       </MotionDiv>
+      {errors.role && (
+        <MotionDiv variants={fadeInUp}>
+          <p className="text-xs text-red-500 text-center">{errors.role.message}</p>
+        </MotionDiv>
+      )}
 
       {/* Google OAuth */}
       <MotionDiv variants={fadeInUp} className="pt-6">
-        <Button variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
-          <IconBrandGoogle size={20} />
-          Daftar dengan Google
-        </Button>
+        <form action={loginWithGoogleAction}>
+          <Button type="submit" variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
+            <IconBrandGoogle size={20} />
+            Daftar dengan Google
+          </Button>
+        </form>
       </MotionDiv>
 
       <MotionDiv variants={fadeInUp} className="relative py-6">
@@ -106,28 +151,59 @@ export default function RegisterPage() {
 
       {/* Form */}
       <MotionDiv variants={fadeInUp}>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+          {error && (
+            <div className="p-3 text-sm bg-red-50 text-red-500 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
           <div>
             <Label htmlFor="name">Nama Lengkap</Label>
-            <IconInput id="name" icon={IconUser} type="text" placeholder="John Doe" className="mt-2" />
+            <IconInput
+              id="name"
+              icon={IconUser}
+              type="text"
+              placeholder="John Doe"
+              className={`mt-2 ${errors.name ? "border-red-500" : ""}`}
+              {...register("name")}
+            />
+            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
           </div>
 
           <div>
             <Label htmlFor="email">Email</Label>
-            <IconInput id="email" icon={IconMail} type="email" placeholder="nama@email.com" className="mt-2" />
+            <IconInput
+              id="email"
+              icon={IconMail}
+              type="email"
+              placeholder="nama@email.com"
+              className={`mt-2 ${errors.email ? "border-red-500" : ""}`}
+              {...register("email")}
+            />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
             <Label htmlFor="password">Password</Label>
-            <IconInput id="password" icon={IconLock} type="password" placeholder="Min. 8 karakter" className="mt-2" />
+            <IconInput 
+              id="password" 
+              icon={IconLock} 
+              type={showPassword ? "text" : "password"} 
+              placeholder="Min. 8 karakter" 
+              className={`mt-2 ${errors.password ? "border-red-500" : ""}`}
+              rightIcon={showPassword ? IconEyeOff : IconEye}
+              onRightIconClick={() => setShowPassword(!showPassword)}
+              {...register("password")}
+            />
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
           </div>
 
           <Button
             type="submit"
-            disabled={!selectedRole}
+            disabled={!selectedRole || isPending}
             className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
           >
-            {selectedRole ? `Daftar Sebagai ${selectedRole === "CLIENT" ? "Client" : "Worker"}` : "Pilih Role Terlebih Dahulu"}
+            {isPending ? "Mendaftar..." : selectedRole ? `Daftar Sebagai ${selectedRole === "CLIENT" ? "Client" : "Worker"}` : "Pilih Role Terlebih Dahulu"}
           </Button>
         </form>
       </MotionDiv>

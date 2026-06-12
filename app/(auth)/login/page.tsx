@@ -9,20 +9,29 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { IconInput } from "@/components/icon-input";
 import { PageTransition, MotionDiv, fadeInUp } from "@/components/motion";
-import { loginAction } from "@/lib/actions/auth";
+import { loginAction, loginWithGoogleAction, loginSchema } from "@/lib/actions/auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema as any),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = (data: z.infer<typeof loginSchema>) => {
     setError(null);
-    const formData = new FormData(e.currentTarget);
-    const credentials = Object.fromEntries(formData.entries()) as Record<string, string>;
     startTransition(async () => {
-      const result = await loginAction(credentials);
+      const result = await loginAction(data);
       if (result?.error) {
         setError(result.error);
       }
@@ -48,10 +57,12 @@ export default function LoginPage() {
 
       {/* Google OAuth */}
       <MotionDiv variants={fadeInUp} className="pt-8">
-        <Button variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
-          <IconBrandGoogle size={20} />
-          Masuk dengan Google
-        </Button>
+        <form action={loginWithGoogleAction}>
+          <Button type="submit" variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
+            <IconBrandGoogle size={20} />
+            Masuk dengan Google
+          </Button>
+        </form>
       </MotionDiv>
 
       <MotionDiv variants={fadeInUp} className="relative py-8">
@@ -63,7 +74,7 @@ export default function LoginPage() {
 
       {/* Form */}
       <MotionDiv variants={fadeInUp}>
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
           {error && (
             <div className="p-3 text-sm bg-red-50 text-red-500 rounded-lg border border-red-200">
               {error}
@@ -73,13 +84,13 @@ export default function LoginPage() {
             <Label htmlFor="email">Email</Label>
             <IconInput
               id="email"
-              name="email"
               icon={IconMail}
               type="email"
               placeholder="nama@email.com"
-              className="mt-2"
-              required
+              className={`mt-2 ${errors.email ? "border-red-500" : ""}`}
+              {...register("email")}
             />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -91,14 +102,15 @@ export default function LoginPage() {
             </div>
             <IconInput
               id="password"
-              name="password"
               icon={IconLock}
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
-              required
+              className={errors.password ? "border-red-500" : ""}
               rightIcon={showPassword ? IconEyeOff : IconEye}
               onRightIconClick={() => setShowPassword(!showPassword)}
+              {...register("password")}
             />
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
           </div>
 
           <Button

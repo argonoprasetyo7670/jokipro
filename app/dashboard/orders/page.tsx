@@ -1,5 +1,6 @@
-"use client";
-
+import Link from "next/link";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import {
   IconClock,
   IconCheck,
@@ -15,37 +16,63 @@ import { PageHeader } from "@/components/page-header";
 import { UserAvatar } from "@/components/user-avatar";
 import { PageTransition, AnimatedCard } from "@/components/motion";
 
-const orders = [
-  {
-    id: "ORD-001", title: "Tugas Algoritma & Pemrograman — Implementasi BFS/DFS",
-    worker: { name: "Ahmad Fauzi" }, status: "IN_PROGRESS" as const,
-    budget: "Rp 180.000", deadline: "15 Jun 2026", progress: 60, createdAt: "10 Jun 2026",
-  },
-  {
-    id: "ORD-002", title: "Makalah Ekonomi Makro — Analisis Kebijakan Fiskal",
-    worker: { name: "Siti Nurhaliza" }, status: "REVIEW" as const,
-    budget: "Rp 85.000", deadline: "12 Jun 2026", progress: 100, createdAt: "8 Jun 2026",
-  },
-  {
-    id: "ORD-003", title: "Desain UI/UX E-Commerce App — Figma High Fidelity",
-    worker: { name: "Budi Santoso" }, status: "COMPLETED" as const,
-    budget: "Rp 300.000", deadline: "10 Jun 2026", progress: 100, createdAt: "3 Jun 2026",
-  },
-  {
-    id: "ORD-004", title: "Website Portfolio Personal — Next.js + Tailwind CSS",
-    worker: { name: "Diana Kusuma" }, status: "IN_PROGRESS" as const,
-    budget: "Rp 350.000", deadline: "20 Jun 2026", progress: 30, createdAt: "11 Jun 2026",
-  },
-  {
-    id: "ORD-005", title: "Laporan Praktikum Fisika — Gerak Parabola",
-    worker: { name: "Rizky Putra" }, status: "DISPUTE" as const,
-    budget: "Rp 75.000", deadline: "9 Jun 2026", progress: 80, createdAt: "5 Jun 2026",
-  },
+const tabOptions = [
+  { label: "Semua", value: "ALL" },
+  { label: "Dikerjakan", value: "IN_PROGRESS" },
+  { label: "Review", value: "IN_REVIEW" },
+  { label: "Selesai", value: "COMPLETED" },
+  { label: "Sengketa", value: "IN_DISPUTE" },
 ];
 
-const tabs = ["Semua", "Dikerjakan", "Review", "Selesai", "Sengketa"];
+// Format currency
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
 
-export default function OrdersPage() {
+// Format date
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
+
+export default async function OrdersPage(props: { searchParams?: Promise<{ status?: string }> | { status?: string } }) {
+  // In Next.js 15+, searchParams is a Promise. We await it to be safe.
+  const sp = props.searchParams ? await props.searchParams : {};
+  const statusFilter = sp?.status as string | undefined;
+
+  const session = await auth();
+  
+  if (!session?.user?.id) {
+    return <div>Harap login terlebih dahulu</div>;
+  }
+
+  const userId = session.user.id;
+  const userRole = session.user.role;
+
+  // Build the where clause
+  const whereClause: any = userRole === "CLIENT" ? { clientId: userId } : { workerId: userId };
+  if (statusFilter && statusFilter !== "ALL") {
+    whereClause.task = { status: statusFilter };
+  }
+
+  // Ambil data pesanan dari database sesuai role dan filter
+  const dbOrders = await prisma.order.findMany({
+    where: whereClause,
+    include: {
+      task: true,
+      worker: true,
+      client: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
     <PageTransition className="space-y-6">
       <AnimatedCard>
@@ -57,99 +84,126 @@ export default function OrdersPage() {
 
       {/* Tabs */}
       <AnimatedCard className="flex gap-2 overflow-x-auto pb-2">
-        {tabs.map((tab, i) => (
-          <Button
-            key={tab}
-            variant={i === 0 ? "default" : "outline"}
-            size="sm"
-            className={`flex-shrink-0 rounded-full ${i === 0 ? "shadow-lg shadow-primary/25" : ""}`}
-          >
-            {tab}
-          </Button>
-        ))}
+        {tabOptions.map((tab) => {
+          const isActive = statusFilter ? statusFilter === tab.value : tab.value === "ALL";
+          return (
+            <Button
+              key={tab.value}
+              variant={isActive ? "default" : "outline"}
+              size="sm"
+              className={`flex-shrink-0 rounded-full ${isActive ? "shadow-lg shadow-primary/25" : ""}`}
+              asChild
+            >
+              <Link href={tab.value === "ALL" ? "/dashboard/orders" : `/dashboard/orders?status=${tab.value}`}>
+                {tab.label}
+              </Link>
+            </Button>
+          );
+        })}
       </AnimatedCard>
 
       {/* Orders */}
       <div className="space-y-4">
-        {orders.map((order) => (
-          <AnimatedCard key={order.id}>
-            <Card className="border-border/50 hover:border-primary/20 transition-all duration-300">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                  {/* Worker Avatar */}
-                  <UserAvatar name={order.worker.name} size="md" className="hidden sm:flex" />
+        {dbOrders.length === 0 ? (
+          <div className="text-center p-8 text-muted-foreground border rounded-xl border-dashed">
+            Belum ada pesanan saat ini.
+          </div>
+        ) : (
+          dbOrders.map((order) => {
+            const taskStatus = order.task.status;
+            
+            // Map task status to UI string
+            let uiStatus = "IN_PROGRESS";
+            if (taskStatus === "IN_REVIEW") uiStatus = "REVIEW";
+            if (taskStatus === "COMPLETED") uiStatus = "COMPLETED";
+            if (taskStatus === "IN_DISPUTE") uiStatus = "DISPUTE";
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-xs text-muted-foreground font-mono">{order.id}</span>
-                      <StatusBadge
-                        status={order.status}
-                        icon={
-                          order.status === "IN_PROGRESS" ? <IconClock size={12} /> :
-                          order.status === "REVIEW" ? <IconEye size={12} /> :
-                          order.status === "COMPLETED" ? <IconCheck size={12} /> :
-                          <IconAlertTriangle size={12} />
-                        }
-                      />
-                    </div>
+            // Dummy progress based on status
+            const progress = taskStatus === "COMPLETED" ? 100 : taskStatus === "IN_REVIEW" ? 90 : 40;
 
-                    <h3 className="font-semibold text-sm line-clamp-1">{order.title}</h3>
+            const targetUser = userRole === "CLIENT" ? order.worker : order.client;
 
-                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span>Worker: <strong className="text-foreground">{order.worker.name}</strong></span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1">
-                        <IconClock size={13} />
-                        Deadline: {order.deadline}
-                      </span>
-                    </div>
+            return (
+              <AnimatedCard key={order.id}>
+                <Card className="border-border/50 hover:border-primary/20 transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      {/* Avatar */}
+                      <UserAvatar name={targetUser.name || "User"} image={targetUser.image} size="md" className="hidden sm:flex" />
 
-                    {/* Progress bar */}
-                    {order.status !== "COMPLETED" && (
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                          <span className="text-muted-foreground">Progres</span>
-                          <span className="font-semibold">{order.progress}%</span>
-                        </div>
-                        <div className="h-2 bg-accent rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
-                            style={{ width: `${order.progress}%` }}
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-xs text-muted-foreground font-mono">#{order.id.slice(0, 8)}</span>
+                          <StatusBadge
+                            status={uiStatus}
+                            icon={
+                              uiStatus === "IN_PROGRESS" ? <IconClock size={12} /> :
+                              uiStatus === "REVIEW" ? <IconEye size={12} /> :
+                              uiStatus === "COMPLETED" ? <IconCheck size={12} /> :
+                              <IconAlertTriangle size={12} />
+                            }
                           />
                         </div>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Right side */}
-                  <div className="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0">
-                    <div className="text-base sm:text-lg font-bold text-primary">{order.budget}</div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
-                        <IconMessageCircle size={16} />
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
-                        <IconEye size={16} />
-                      </Button>
+                        <h3 className="font-semibold text-sm line-clamp-1">{order.task.title}</h3>
+
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                          <span>{userRole === "CLIENT" ? "Worker" : "Client"}: <strong className="text-foreground">{targetUser.name}</strong></span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <IconClock size={13} />
+                            Deadline: {formatDate(order.task.deadline)}
+                          </span>
+                        </div>
+
+                        {/* Progress bar */}
+                        {taskStatus !== "COMPLETED" && (
+                          <div className="mt-3">
+                            <div className="flex items-center justify-between text-xs mb-1.5">
+                              <span className="text-muted-foreground">Progres</span>
+                              <span className="font-semibold">{progress}%</span>
+                            </div>
+                            <div className="h-2 bg-accent rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right side */}
+                      <div className="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0">
+                        <div className="text-base sm:text-lg font-bold text-primary">{formatCurrency(order.amount)}</div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
+                            <IconMessageCircle size={16} />
+                          </Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg">
+                            <IconEye size={16} />
+                          </Button>
+                        </div>
+                        {userRole === "CLIENT" && taskStatus === "IN_REVIEW" && (
+                          <Button size="sm" className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs hover:from-emerald-400 hover:to-teal-400">
+                            Terima Hasil
+                          </Button>
+                        )}
+                        {taskStatus === "COMPLETED" && (
+                          <Button variant="outline" size="sm" className="rounded-lg border-amber-500/30 text-amber-400 text-xs hover:bg-amber-500/10">
+                            <IconStarFilled size={14} />
+                            Beri Rating
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    {order.status === "REVIEW" && (
-                      <Button size="sm" className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs hover:from-emerald-400 hover:to-teal-400">
-                        Terima Hasil
-                      </Button>
-                    )}
-                    {order.status === "COMPLETED" && (
-                      <Button variant="outline" size="sm" className="rounded-lg border-amber-500/30 text-amber-400 text-xs hover:bg-amber-500/10">
-                        <IconStarFilled size={14} />
-                        Beri Rating
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </AnimatedCard>
-        ))}
+                  </CardContent>
+                </Card>
+              </AnimatedCard>
+            );
+          })
+        )}
       </div>
     </PageTransition>
   );

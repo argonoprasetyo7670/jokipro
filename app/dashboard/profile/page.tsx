@@ -27,6 +27,7 @@ export default async function ProfilePage() {
     where: { id: userId },
     include: {
       workerProfile: true,
+      clientProfile: true,
       _count: {
         select: {
           postedTasks: true,
@@ -66,7 +67,7 @@ export default async function ProfilePage() {
       _sum: { amount: true }
     });
     totalSpent = formatRupiah(orders._sum.amount || 0);
-    rating = 5.0; // Clients don't have public ratings yet, default to 5.0
+    rating = userData.clientProfile?.rating || 0;
   }
 
   const formattedUser = {

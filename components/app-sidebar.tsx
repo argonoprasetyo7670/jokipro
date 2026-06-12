@@ -40,8 +40,6 @@ const clientNav: NavItem[] = [
   { url: "/dashboard", title: "Overview", icon: IconLayoutDashboard },
   { url: "/dashboard/my-tasks", title: "Tugas Saya", icon: IconListSearch },
   { url: "/dashboard/workers", title: "Cari Worker", icon: IconUsers },
-  { url: "/dashboard/tasks/new", title: "Buat Tugas", icon: IconPlus },
-  { url: "/dashboard/orders", title: "Pesanan Saya", icon: IconPackage },
   { url: "/dashboard/profile", title: "Profil", icon: IconUser },
 ]
 

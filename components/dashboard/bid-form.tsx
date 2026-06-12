@@ -7,8 +7,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createBidAction } from "@/lib/actions/bids";
+import { createBidAction, bidSchema } from "@/lib/actions/bids";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface BidFormProps {
   taskId: string;
@@ -18,18 +21,30 @@ export function BidForm({ taskId }: BidFormProps) {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    formData.append("taskId", taskId);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<z.infer<typeof bidSchema>>({
+    resolver: zodResolver(bidSchema as any),
+    defaultValues: {
+      taskId: taskId,
+      amount: "" as unknown as number,
+      estimatedDays: "" as unknown as number,
+      coverLetter: "",
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof bidSchema>, e?: React.BaseSyntheticEvent) => {
+    if (!e) return;
+    const formData = new FormData(e.target);
 
     startTransition(async () => {
       try {
         await createBidAction(formData);
         toast.success("Penawaran berhasil dikirim!");
-        if (formRef.current) {
-          formRef.current.reset();
-        }
+        reset();
       } catch (error: any) {
         toast.error(error.message || "Gagal mengirim penawaran");
       }
@@ -46,47 +61,45 @@ export function BidForm({ taskId }: BidFormProps) {
           </p>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" encType="multipart/form-data">
+          <input type="hidden" {...register("taskId")} />
           <div>
             <Label className="text-xs" htmlFor="amount">Harga Penawaran (Rp)</Label>
             <Input 
               id="amount"
-              name="amount"
               type="number" 
               placeholder="200000" 
-              required
-              min="10000"
               disabled={isPending}
-              className="mt-1.5 rounded-xl h-10 bg-background" 
+              className={`mt-1.5 rounded-xl h-10 bg-background ${errors.amount ? "border-red-500" : ""}`} 
+              {...register("amount")}
             />
+            {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount.message}</p>}
           </div>
 
           <div>
             <Label className="text-xs" htmlFor="estimatedDays">Estimasi Pengerjaan (Hari)</Label>
             <Input 
               id="estimatedDays"
-              name="estimatedDays"
               type="number" 
               placeholder="2" 
-              required
-              min="1"
               disabled={isPending}
-              className="mt-1.5 rounded-xl h-10 bg-background" 
+              className={`mt-1.5 rounded-xl h-10 bg-background ${errors.estimatedDays ? "border-red-500" : ""}`} 
+              {...register("estimatedDays")}
             />
+            {errors.estimatedDays && <p className="text-xs text-red-500 mt-1">{errors.estimatedDays.message}</p>}
           </div>
 
           <div>
             <Label className="text-xs" htmlFor="coverLetter">Pesan / Cover Letter</Label>
             <Textarea 
               id="coverLetter"
-              name="coverLetter"
               rows={3} 
               placeholder="Jelaskan kenapa Anda cocok untuk tugas ini..." 
-              required
-              minLength={10}
               disabled={isPending}
-              className="mt-1.5 rounded-xl bg-background resize-none" 
+              className={`mt-1.5 rounded-xl bg-background resize-none ${errors.coverLetter ? "border-red-500" : ""}`} 
+              {...register("coverLetter")}
             />
+            {errors.coverLetter && <p className="text-xs text-red-500 mt-1">{errors.coverLetter.message}</p>}
           </div>
 
           <div>

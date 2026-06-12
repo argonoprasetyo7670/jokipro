@@ -160,5 +160,6 @@ export async function getWorkerDashboardData(userId: string) {
     rating,
     completedOrders,
     recentOrders: formattedOrders,
+    kycStatus: workerProfile?.kycStatus || "PENDING",
   };
 }
