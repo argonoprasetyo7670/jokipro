@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatMonthYearWIB, formatDateMediumWIB } from "@/lib/utils";
 
 export async function getClientById(id: string) {
   const client = await prisma.user.findUnique({
@@ -34,7 +35,7 @@ export async function getClientById(id: string) {
   if (!client || client.role !== "CLIENT") return null;
 
   // Calculate join date
-  const joinDate = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(client.createdAt);
+  const joinDate = formatMonthYearWIB(client.createdAt);
 
   return {
     id: client.id,
@@ -51,7 +52,7 @@ export async function getClientById(id: string) {
       title: t.title,
       category: t.category,
       budget: t.budget,
-      completedDate: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(t.updatedAt),
+      completedDate: formatDateMediumWIB(t.updatedAt),
       worker: t.order?.worker ? (t.order.worker.name || t.order.worker.email) : "Unknown Worker"
     }))
   };

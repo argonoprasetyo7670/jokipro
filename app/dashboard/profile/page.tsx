@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/page-header";
 import { PageTransition, AnimatedCard } from "@/components/motion";
 import { ProfileForm } from "@/components/dashboard/profile-form";
 import { ProfileAvatar } from "@/components/dashboard/profile-avatar";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah, formatMonthYearWIB } from "@/lib/utils";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
   }
 
   const isWorker = userData.role === "WORKER";
-  const joinDate = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(userData.createdAt);
+  const joinDate = formatMonthYearWIB(userData.createdAt);
   const initial = userData.name ? userData.name.substring(0, 2).toUpperCase() : "JP";
 
   // Calculate stats based on role

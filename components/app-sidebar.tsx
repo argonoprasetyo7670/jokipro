@@ -24,7 +24,8 @@ import {
   IconUsers,
   IconAlertCircle,
   IconUser,
-  IconRobot
+  IconRobot,
+  IconWallet,
 } from "@tabler/icons-react"
 import Image from "next/image"
 
@@ -42,6 +43,7 @@ const clientNav: NavItem[] = [
   { url: "/dashboard", title: "Overview", icon: IconLayoutDashboard },
   { url: "/dashboard/my-tasks", title: "Tugas Saya", icon: IconListSearch },
   { url: "/dashboard/orders", title: "Pesanan Saya", icon: IconPackage },
+  { url: "/dashboard/wallet", title: "Riwayat Transaksi", icon: IconWallet },
   { url: "/dashboard/workers", title: "Cari Worker", icon: IconUsers },
   { url: "/dashboard/profile", title: "Profil", icon: IconUser },
 ]
@@ -50,6 +52,7 @@ const workerNav: NavItem[] = [
   { url: "/dashboard", title: "Overview", icon: IconLayoutDashboard },
   { url: "/dashboard/tasks", title: "Cari Tugas", icon: IconListSearch },
   { url: "/dashboard/orders", title: "Pesanan Saya", icon: IconPackage },
+  { url: "/dashboard/wallet", title: "Riwayat Pendapatan", icon: IconWallet },
   { url: "/dashboard/profile", title: "Profil", icon: IconUser },
 ]
 

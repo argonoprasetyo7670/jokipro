@@ -15,6 +15,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { PageHeader } from "@/components/page-header";
 import { UserAvatar } from "@/components/user-avatar";
 import { PageTransition, AnimatedCard } from "@/components/motion";
+import { formatDateWIB } from "@/lib/utils";
 
 const tabOptions = [
   { label: "Semua", value: "ALL" },
@@ -33,14 +34,8 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-// Format date
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-};
+// Format date (WIB)
+const formatDate = (date: Date) => formatDateWIB(date);
 
 export default async function OrdersPage(props: { searchParams?: Promise<{ status?: string }> | { status?: string } }) {
   // In Next.js 15+, searchParams is a Promise. We await it to be safe.
@@ -145,6 +140,11 @@ export default async function OrdersPage(props: { searchParams?: Promise<{ statu
                                 <IconAlertTriangle size={12} />
                               }
                             />
+                            {order.status === "PENDING_PAYMENT" && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400">
+                                Belum Bayar
+                              </span>
+                            )}
                           </div>
 
                           <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">{order.task.title}</h3>

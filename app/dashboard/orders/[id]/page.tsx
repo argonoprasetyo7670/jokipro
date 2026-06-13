@@ -19,12 +19,12 @@ import { PageTransition, AnimatedCard } from "@/components/motion";
 import { OrderChat } from "@/components/dashboard/order-chat";
 import { OrderActions } from "@/components/dashboard/order-actions";
 import { ReviewForm } from "@/components/dashboard/review-form";
+import { formatDateLongWIB } from "@/lib/utils";
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(amount);
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(date);
+const formatDate = (date: Date) => formatDateLongWIB(date);
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -209,6 +209,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               taskStatus={order.task.status}
               userRole={session.user.id === order.workerId ? "WORKER" : "CLIENT"}
               currentProgress={order.progress || 0}
+              paymentStatus={order.status}
+              orderAmount={order.amount}
             />
           </AnimatedCard>
 
@@ -229,6 +231,20 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <div className="border-t pt-3 flex justify-between">
                     <span className="text-muted-foreground">Worker Menerima</span>
                     <span className="font-bold text-primary">{formatCurrency(order.amount - order.platformFee)}</span>
+                  </div>
+                  <div className="border-t pt-3 flex justify-between items-center">
+                    <span className="text-muted-foreground">Status Pembayaran</span>
+                    {order.status === "ESCROW_HOLD" || order.status === "RELEASED" ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">
+                        <IconShieldCheck size={12} />
+                        {order.status === "RELEASED" ? "Dirilis" : "Escrow"}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/50 px-2 py-0.5 rounded-full">
+                        <IconClock size={12} />
+                        Belum Bayar
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>

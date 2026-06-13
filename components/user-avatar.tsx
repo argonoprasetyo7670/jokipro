@@ -5,11 +5,12 @@ interface UserAvatarProps {
   name: string;
   image?: string | null;
   gradient?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
 const sizeClasses = {
+  xs: "h-5 w-5 text-[8px]",
   sm: "h-8 w-8 text-xs",
   md: "h-10 w-10 text-sm",
   lg: "h-12 w-12 text-base",

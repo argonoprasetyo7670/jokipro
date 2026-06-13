@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { IconCheck, IconRefresh, IconSend, IconLoader2, IconAlertTriangle } from "@tabler/icons-react";
 import { submitWorkAction, acceptResultAction, requestRevisionAction, updateProgressAction } from "@/lib/actions/orders";
 import { DisputeModal } from "@/components/dashboard/dispute-modal";
+import { PaymentButton } from "@/components/dashboard/payment-button";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -25,9 +26,11 @@ interface OrderActionsProps {
   taskStatus: string;
   userRole: string;
   currentProgress?: number;
+  paymentStatus?: string;
+  orderAmount?: number;
 }
 
-export function OrderActions({ orderId, taskId, taskStatus, userRole, currentProgress = 0 }: OrderActionsProps) {
+export function OrderActions({ orderId, taskId, taskStatus, userRole, currentProgress = 0, paymentStatus, orderAmount }: OrderActionsProps) {
   const [isPending, startTransition] = useTransition();
   const [revisionNote, setRevisionNote] = useState("");
   const [showRevision, setShowRevision] = useState(false);
@@ -84,6 +87,20 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole, currentPro
       }
     });
   };
+
+  // Worker: Order is PENDING_PAYMENT → waiting for client to pay
+  if (userRole === "WORKER" && paymentStatus === "PENDING_PAYMENT") {
+    return (
+      <div className="space-y-4">
+        <div className="p-4 border rounded-2xl bg-amber-500/5 border-amber-500/20 space-y-2">
+          <h3 className="font-semibold text-sm text-amber-600 dark:text-amber-400">Menunggu Pembayaran</h3>
+          <p className="text-xs text-muted-foreground">
+            Client belum melakukan pembayaran. Anda akan menerima notifikasi setelah pembayaran dikonfirmasi dan bisa mulai mengerjakan tugas.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Worker: IN_PROGRESS → can update progress & submit work
   if (userRole === "WORKER" && taskStatus === "IN_PROGRESS") {
@@ -259,7 +276,16 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole, currentPro
     );
   }
 
-  // Client: IN_PROGRESS → waiting
+  // Client: IN_PROGRESS but PENDING_PAYMENT → show payment button
+  if (userRole === "CLIENT" && paymentStatus === "PENDING_PAYMENT") {
+    return (
+      <div className="space-y-4">
+        <PaymentButton orderId={orderId} amount={orderAmount || 0} />
+      </div>
+    );
+  }
+
+  // Client: IN_PROGRESS & paid → waiting
   if (userRole === "CLIENT" && taskStatus === "IN_PROGRESS") {
     return (
       <div className="space-y-4">

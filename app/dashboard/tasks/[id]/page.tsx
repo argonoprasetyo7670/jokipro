@@ -23,6 +23,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { PageTransition, AnimatedCard } from "@/components/motion";
 import { BidForm } from "@/components/dashboard/bid-form";
 import { BidCard } from "@/components/dashboard/bid-card";
+import { formatDateLongWIB } from "@/lib/utils";
 
 export default async function TaskDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -82,7 +83,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
     title: taskData.title,
     description: taskData.description,
     budget: new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(taskData.budget),
-    deadline: new Date(taskData.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+    deadline: formatDateLongWIB(taskData.deadline),
     status: taskData.status,
     tags: taskData.category.split(",").map((t: string) => t.trim()),
     clientName: taskData.client.name || "Client",

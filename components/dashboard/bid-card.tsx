@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { formatDateWIB, formatTimeWIB, formatDateLongWIB } from "@/lib/utils";
 
 interface BidCardProps {
   bid: {
@@ -108,7 +109,7 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
           <div className="flex flex-wrap items-center gap-4 mt-3">
             <span className="text-sm font-bold text-primary">{formattedAmount}</span>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
-              Deadline: {new Date(bid.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}, {new Date(bid.deadline).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+              Deadline: {formatDateWIB(bid.deadline)}, {formatTimeWIB(bid.deadline)} WIB
             </span>
           </div>
         </div>
@@ -157,8 +158,8 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-muted-foreground mb-1">Deadline Pengerjaan</p>
-                    <p className="font-semibold text-sm">{new Date(bid.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(bid.deadline).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB</p>
+                    <p className="font-semibold text-sm">{formatDateLongWIB(bid.deadline)}</p>
+                    <p className="text-xs text-muted-foreground">{formatTimeWIB(bid.deadline)} WIB</p>
                   </div>
                 </div>
 

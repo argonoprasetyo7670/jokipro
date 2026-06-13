@@ -36,7 +36,7 @@ export const authConfig = {
         const adminOnlyRoutes = ["/dashboard/clients", "/dashboard/users", "/dashboard/admin-keren"];
         const clientOnlyRoutes = ["/dashboard/tasks/new", "/dashboard/my-tasks"];
         const clientAdminRoutes = ["/dashboard/workers"];
-        const workerClientRoutes = ["/dashboard/orders"];
+        const workerClientRoutes = ["/dashboard/orders", "/dashboard/wallet"];
 
         // Check Admin only
         if (adminOnlyRoutes.some(route => nextUrl.pathname.startsWith(route))) {

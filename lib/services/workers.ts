@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatMonthYearWIB, formatDateMediumWIB } from "@/lib/utils";
 
 export type FormattedWorker = {
   id: string;
@@ -84,7 +85,7 @@ export async function getWorkerById(id: string) {
   }).format(earned);
 
   // Calculate join date
-  const joinDate = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(worker.createdAt);
+  const joinDate = formatMonthYearWIB(worker.createdAt);
 
   return {
     id: worker.id,
@@ -105,7 +106,7 @@ export async function getWorkerById(id: string) {
     recentReviews: worker.receivedReviews.map(r => ({
       client: r.reviewer.name || r.reviewer.email,
       rating: r.rating,
-      date: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(r.createdAt),
+      date: formatDateMediumWIB(r.createdAt),
       comment: r.comment || "Tidak ada komentar",
     }))
   };

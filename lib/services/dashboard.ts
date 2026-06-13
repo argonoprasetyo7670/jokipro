@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatDateMediumWIB } from "@/lib/utils";
 
 export async function getAdminDashboardData() {
   const [totalUsers, totalOrders, openDisputes, orders] = await Promise.all([
@@ -72,7 +73,7 @@ export async function getClientDashboardData(userId: string) {
     worker: t.order?.worker ? (t.order.worker.name || t.order.worker.email) : "Menunggu Penawaran",
     status: t.status,
     budget: t.budget,
-    deadline: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(t.deadline),
+    deadline: formatDateMediumWIB(t.deadline),
   });
 
   const formatOrder = (o: any) => ({
@@ -81,7 +82,7 @@ export async function getClientDashboardData(userId: string) {
     worker: o.worker.name || o.worker.email,
     status: o.status,
     budget: o.amount,
-    deadline: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(o.createdAt), // Paid date approximation
+    deadline: formatDateMediumWIB(o.createdAt), // Paid date approximation
   });
 
   const activeTasksList = activeTasksRaw.map(formatTask);
@@ -106,7 +107,7 @@ export async function getClientDashboardData(userId: string) {
     worker: t.order?.worker ? (t.order.worker.name || t.order.worker.email) : "Menunggu Penawaran",
     status: t.status,
     budget: t.budget,
-    deadline: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(t.deadline),
+    deadline: formatDateMediumWIB(t.deadline),
   }));
 
   return {
@@ -151,7 +152,7 @@ export async function getWorkerDashboardData(userId: string) {
     client: o.client.name || o.client.email,
     status: o.task.status,
     budget: o.amount,
-    deadline: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(o.task.deadline),
+    deadline: formatDateMediumWIB(o.task.deadline),
   }));
 
   return {

@@ -1,14 +1,17 @@
-import { getPendingWorkersAction } from "@/lib/actions/admin";
+import { getPendingWorkersAction, getAllUsersAction } from "@/lib/actions/admin";
 import { WorkerVerificationDialog } from "@/components/admin/worker-verification-dialog";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { UserTable } from "@/components/admin/user-table";
+import { formatDateWIB } from "@/lib/utils";
 
 export const metadata = {
   title: "Kelola Pengguna | Edutasky Admin",
 };
 
 export default async function AdminUsersPage() {
-  const pendingWorkers = await getPendingWorkersAction();
+  const [pendingWorkers, allUsers] = await Promise.all([
+    getPendingWorkersAction(),
+    getAllUsersAction(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -19,6 +22,7 @@ export default async function AdminUsersPage() {
         </p>
       </div>
 
+      {/* Section 1: Pending KYC Verification */}
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b">
           <div className="flex items-center justify-between">
@@ -39,7 +43,7 @@ export default async function AdminUsersPage() {
         {pendingWorkers.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center text-muted-foreground">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="10" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="10" /></svg>
             </div>
             <p className="font-medium text-foreground">Semua bersih!</p>
             <p className="text-sm mt-1">Tidak ada worker yang perlu diverifikasi saat ini.</p>
@@ -67,7 +71,7 @@ export default async function AdminUsersPage() {
                       <div className="text-xs text-muted-foreground">{worker.major || "-"}</div>
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">
-                      {format(new Date(worker.createdAt), "dd MMM yyyy", { locale: id })}
+                      {formatDateWIB(worker.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <WorkerVerificationDialog worker={worker} />
@@ -79,6 +83,9 @@ export default async function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Section 2: All Users Management (CRUD) */}
+      <UserTable users={allUsers} />
     </div>
   );
 }

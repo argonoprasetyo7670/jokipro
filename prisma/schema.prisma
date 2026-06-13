@@ -188,6 +188,11 @@ model Order {
   status      PaymentStatus @default(PENDING_PAYMENT)
   progress    Int           @default(0) // 0-100 progress percentage
 
+  // Midtrans Payment Gateway
+  midtransId  String?   @unique // Midtrans transaction order_id (EDT-xxx)
+  snapToken   String?            // Snap token untuk popup payment
+  paidAt      DateTime?          // Waktu pembayaran berhasil
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { TaskCard } from "@/components/task-card";
 import { TaskFilters } from "@/components/dashboard/task-filters";
 import { PageTransition, AnimatedCard } from "@/components/motion";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah, formatDateMediumWIB } from "@/lib/utils";
 
 const categories = ["Semua", "Programming", "Penulisan", "Desain", "Tugas Kuliah", "Presentasi", "Data Entry"];
 
@@ -45,7 +45,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
     title: t.title,
     category: t.category,
     budget: formatRupiah(t.budget),
-    deadline: new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(t.deadline),
+    deadline: formatDateMediumWIB(t.deadline),
     urgency: "medium" as const, // can be calculated based on deadline proximity
     bids: t._count.bids,
     client: { 
