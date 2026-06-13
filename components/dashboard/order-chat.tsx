@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/user-avatar";
 import { sendMessageAction } from "@/lib/actions/orders";
 import { toast } from "sonner";
+import { validateFileSize } from "@/lib/validate-file";
 
 interface Message {
   id: string;
@@ -121,7 +122,19 @@ export function OrderChat({ orderId, messages, currentUserId }: OrderChatProps) 
           <input
             type="file"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            onChange={(e) => {
+              const selected = e.target.files?.[0] || null;
+              if (selected) {
+                const err = validateFileSize([selected]);
+                if (err) {
+                  toast.error(err);
+                  e.target.value = "";
+                  setFile(null);
+                  return;
+                }
+              }
+              setFile(selected);
+            }}
           />
           <div className="h-10 w-10 rounded-xl border flex items-center justify-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
             <IconPaperclip size={18} />

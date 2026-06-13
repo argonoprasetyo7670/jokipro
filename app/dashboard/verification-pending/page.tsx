@@ -38,7 +38,7 @@ export default function VerificationPendingPage() {
               Menunggu Verifikasi
             </h1>
             <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto leading-relaxed">
-              Data profil Anda sedang direview oleh tim admin JokiPro. Proses verifikasi biasanya memakan waktu <strong>1x24 jam</strong> di hari kerja.
+              Data profil Anda sedang direview oleh tim admin EduTasky. Proses verifikasi biasanya memakan waktu <strong>1x24 jam</strong> di hari kerja.
             </p>
           </>
         ) : (

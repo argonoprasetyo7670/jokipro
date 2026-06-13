@@ -58,7 +58,7 @@ export function ClientOverview({ userName, data }: { userName: string; data: Cli
       <AnimatedCard>
         <PageHeader
           title={`Selamat Datang, ${userName}! 👋`}
-          description="Pantau progres tugas yang Anda posting di JokiPro."
+          description="Pantau progres tugas yang Anda posting di EduTasky."
         />
       </AnimatedCard>
 

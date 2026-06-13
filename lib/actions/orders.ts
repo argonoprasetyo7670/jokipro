@@ -82,6 +82,36 @@ export async function sendMessageAction(formData: FormData) {
 }
 
 /**
+ * Worker updates progress percentage (0-100)
+ */
+export async function updateProgressAction(orderId: string, progress: number) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Anda harus login");
+
+  if (progress < 0 || progress > 100 || !Number.isInteger(progress)) {
+    throw new Error("Progress harus berupa angka 0-100");
+  }
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { task: true },
+  });
+
+  if (!order) throw new Error("Pesanan tidak ditemukan");
+  if (order.workerId !== session.user.id) throw new Error("Hanya Worker yang dapat mengupdate progress");
+  if (order.task.status !== "IN_PROGRESS") throw new Error("Tugas tidak dalam status pengerjaan");
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: { progress },
+  });
+
+  revalidatePath(`/dashboard/orders/${orderId}`);
+  revalidatePath("/dashboard/orders");
+  return { success: true };
+}
+
+/**
  * Worker submits their work (IN_PROGRESS → IN_REVIEW)
  */
 export async function submitWorkAction(orderId: string) {
@@ -101,6 +131,12 @@ export async function submitWorkAction(orderId: string) {
     await tx.task.update({
       where: { id: order.taskId },
       data: { status: "IN_REVIEW" },
+    });
+
+    // Auto-set progress to 100 on submit
+    await tx.order.update({
+      where: { id: orderId },
+      data: { progress: 100 },
     });
 
     await tx.notification.create({

@@ -21,6 +21,8 @@ import { IconInput } from "@/components/icon-input";
 import { PageTransition, AnimatedCard } from "@/components/motion";
 import { createTaskAction } from "@/lib/actions/tasks";
 import { taskSchema } from "@/lib/schemas/tasks";
+import { validateFileSize, MAX_FILE_SIZE_LABEL } from "@/lib/validate-file";
+import { toast } from "sonner";
 
 const categories = [
   "Programming", "Penulisan / Makalah", "Desain Grafis", "Tugas Kuliah",
@@ -52,6 +54,16 @@ export default function NewTaskPage() {
 
   const onSubmit = (data: z.infer<typeof taskSchema>) => {
     setErrorMsg("");
+
+    // Client-side file size check
+    if (file) {
+      const fileError = validateFileSize([file]);
+      if (fileError) {
+        toast.error(fileError);
+        return;
+      }
+    }
+
     startTransition(async () => {
       const formData = new FormData();
       formData.append("title", data.title);
@@ -250,7 +262,19 @@ export default function NewTaskPage() {
                   id="file-upload" 
                   type="file" 
                   className="hidden" 
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const selected = e.target.files?.[0] || null;
+                    if (selected) {
+                      const err = validateFileSize([selected]);
+                      if (err) {
+                        toast.error(err);
+                        e.target.value = "";
+                        setFile(null);
+                        return;
+                      }
+                    }
+                    setFile(selected);
+                  }}
                 />
                 <IconUpload size={32} className="mx-auto text-muted-foreground mb-3" />
                 <p className="text-sm font-medium">

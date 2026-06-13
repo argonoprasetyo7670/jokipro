@@ -23,7 +23,8 @@ import {
   IconPackage,
   IconUsers,
   IconAlertCircle,
-  IconUser
+  IconUser,
+  IconRobot
 } from "@tabler/icons-react"
 import Image from "next/image"
 
@@ -34,11 +35,13 @@ const adminNav: NavItem[] = [
   { url: "/dashboard/users", title: "Kelola Pengguna", icon: IconUsers },
   { url: "/dashboard/tasks", title: "Kelola Tugas", icon: IconListSearch },
   { url: "/dashboard/disputes", title: "Dispute", icon: IconAlertCircle },
+  { url: "/dashboard/admin-keren/agent", title: "AI Agent", icon: IconRobot },
 ]
 
 const clientNav: NavItem[] = [
   { url: "/dashboard", title: "Overview", icon: IconLayoutDashboard },
   { url: "/dashboard/my-tasks", title: "Tugas Saya", icon: IconListSearch },
+  { url: "/dashboard/orders", title: "Pesanan Saya", icon: IconPackage },
   { url: "/dashboard/workers", title: "Cari Worker", icon: IconUsers },
   { url: "/dashboard/profile", title: "Profil", icon: IconUser },
 ]
@@ -76,11 +79,11 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
             <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
               <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center">
-                  <Image src="/logo.png" alt="JokiPro Logo" width={32} height={32} className="object-contain drop-shadow-md" />
+                  <Image src="/logo.png" alt="EduTasky Logo" width={32} height={32} className="object-contain drop-shadow-md" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="text-xl font-bold tracking-tight">
-                    Joki<span className="text-sidebar-primary">Pro</span>
+                    Edu<span className="text-sidebar-primary">Tasky</span>
                   </span>
                 </div>
               </Link>

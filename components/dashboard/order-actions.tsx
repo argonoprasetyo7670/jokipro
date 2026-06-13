@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { IconCheck, IconRefresh, IconSend, IconLoader2, IconAlertTriangle } from "@tabler/icons-react";
-import { submitWorkAction, acceptResultAction, requestRevisionAction } from "@/lib/actions/orders";
+import { submitWorkAction, acceptResultAction, requestRevisionAction, updateProgressAction } from "@/lib/actions/orders";
 import { DisputeModal } from "@/components/dashboard/dispute-modal";
 import { toast } from "sonner";
 import {
@@ -24,12 +24,27 @@ interface OrderActionsProps {
   taskId: string;
   taskStatus: string;
   userRole: string;
+  currentProgress?: number;
 }
 
-export function OrderActions({ orderId, taskId, taskStatus, userRole }: OrderActionsProps) {
+export function OrderActions({ orderId, taskId, taskStatus, userRole, currentProgress = 0 }: OrderActionsProps) {
   const [isPending, startTransition] = useTransition();
   const [revisionNote, setRevisionNote] = useState("");
   const [showRevision, setShowRevision] = useState(false);
+  const [progress, setProgress] = useState(currentProgress);
+  const [progressSaved, setProgressSaved] = useState(true);
+
+  const handleUpdateProgress = () => {
+    startTransition(async () => {
+      try {
+        await updateProgressAction(orderId, progress);
+        setProgressSaved(true);
+        toast.success(`Progress diupdate ke ${progress}%`);
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    });
+  };
 
   const handleSubmitWork = () => {
     startTransition(async () => {
@@ -70,10 +85,62 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole }: OrderAct
     });
   };
 
-  // Worker: IN_PROGRESS → can submit work
+  // Worker: IN_PROGRESS → can update progress & submit work
   if (userRole === "WORKER" && taskStatus === "IN_PROGRESS") {
     return (
       <div className="space-y-4">
+        {/* Progress Slider */}
+        <div className="p-4 border rounded-2xl bg-card space-y-4">
+          <h3 className="font-semibold text-sm">Update Progress</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Progress Pengerjaan</span>
+              <span className="text-sm font-bold text-primary">{progress}%</span>
+            </div>
+            <div className="relative">
+              <div className="h-2 bg-accent rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={progress}
+                onChange={(e) => {
+                  setProgress(Number(e.target.value));
+                  setProgressSaved(false);
+                }}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={isPending}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] text-muted-foreground">
+              <span>0%</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+            {!progressSaved && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full rounded-xl text-xs"
+                onClick={handleUpdateProgress}
+                disabled={isPending}
+              >
+                {isPending ? <IconLoader2 className="animate-spin mr-2" size={14} /> : null}
+                Simpan Progress
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Submit Work */}
         <div className="p-4 border rounded-2xl bg-card space-y-3">
           <h3 className="font-semibold text-sm">Selesaikan Pekerjaan</h3>
           <p className="text-xs text-muted-foreground">

@@ -21,9 +21,9 @@ function Navbar() {
       <div className="absolute inset-0 bg-background/60 backdrop-blur-xl" />
       <div className="relative mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="JokiPro Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
+          <Image src="/logo.png" alt="Edutasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
           <span className="text-lg font-bold tracking-tight">
-            Joki<span className="text-primary">Pro</span>
+            Edu<span className="text-primary">Tasky</span>
           </span>
         </Link>
 
@@ -443,13 +443,13 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="JokiPro Logo" width={28} height={28} className="w-7 h-7 rounded-lg object-contain" />
+            <Image src="/logo.png" alt="Edutasky Logo" width={28} height={28} className="w-7 h-7 rounded-lg object-contain" />
             <span className="text-sm font-bold">
               Joki<span className="text-primary">Pro</span>
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} JokiPro. All rights reserved.
+            &copy; {new Date().getFullYear()} Edutasky. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">

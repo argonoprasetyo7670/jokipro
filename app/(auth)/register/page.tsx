@@ -19,7 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { IconInput } from "@/components/icon-input";
 import { PageTransition, MotionDiv, fadeInUp } from "@/components/motion";
-import { loginWithGoogleAction, registerAction, registerSchema } from "@/lib/actions/auth";
+import { loginWithGoogleAction, registerAction } from "@/lib/actions/auth";
+import { registerSchema } from "@/lib/schemas/auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -65,7 +66,7 @@ export default function RegisterPage() {
     <PageTransition className="w-full max-w-md space-y-0">
       {/* Mobile logo */}
       <MotionDiv variants={fadeInUp} className="flex items-center gap-2 mb-8 lg:hidden">
-        <Image src="/logo.png" alt="JokiPro Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
+        <Image src="/logo.png" alt="Edutasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
         <span className="text-lg font-bold">
           Joki<span className="text-primary">Pro</span>
         </span>
@@ -74,7 +75,7 @@ export default function RegisterPage() {
       <MotionDiv variants={fadeInUp}>
         <h2 className="text-2xl font-bold tracking-tight">Buat Akun Baru</h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Bergabung dengan ribuan pengguna JokiPro.
+          Bergabung dengan ribuan pengguna Edutasky.
         </p>
       </MotionDiv>
 
@@ -83,11 +84,10 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={() => setValue("role", "CLIENT", { shouldValidate: true })}
-          className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${
-            selectedRole === "CLIENT"
+          className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${selectedRole === "CLIENT"
               ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
               : "border-border hover:border-primary/30 bg-card"
-          }`}
+            }`}
         >
           {selectedRole === "CLIENT" && (
             <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -106,11 +106,10 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={() => setValue("role", "WORKER", { shouldValidate: true })}
-          className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${
-            selectedRole === "WORKER"
+          className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${selectedRole === "WORKER"
               ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
               : "border-border hover:border-primary/30 bg-card"
-          }`}
+            }`}
         >
           {selectedRole === "WORKER" && (
             <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
@@ -134,10 +133,18 @@ export default function RegisterPage() {
 
       {/* Google OAuth */}
       <MotionDiv variants={fadeInUp} className="pt-6">
-        <form action={loginWithGoogleAction}>
-          <Button type="submit" variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
+        <form action={async () => {
+          if (!selectedRole) return;
+          await loginWithGoogleAction(selectedRole);
+        }}>
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={!selectedRole}
+            className="w-full h-12 rounded-xl gap-3 text-sm font-medium disabled:opacity-50"
+          >
             <IconBrandGoogle size={20} />
-            Daftar dengan Google
+            {selectedRole ? `Daftar sebagai ${selectedRole === "CLIENT" ? "Client" : "Worker"} dengan Google` : "Pilih role terlebih dahulu"}
           </Button>
         </form>
       </MotionDiv>
@@ -185,11 +192,11 @@ export default function RegisterPage() {
 
           <div>
             <Label htmlFor="password">Password</Label>
-            <IconInput 
-              id="password" 
-              icon={IconLock} 
-              type={showPassword ? "text" : "password"} 
-              placeholder="Min. 8 karakter" 
+            <IconInput
+              id="password"
+              icon={IconLock}
+              type={showPassword ? "text" : "password"}
+              placeholder="Min. 8 karakter"
               className={`mt-2 ${errors.password ? "border-red-500" : ""}`}
               rightIcon={showPassword ? IconEyeOff : IconEye}
               onRightIconClick={() => setShowPassword(!showPassword)}

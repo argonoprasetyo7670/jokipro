@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { IconInput } from "@/components/icon-input";
 import { PageTransition, MotionDiv, fadeInUp } from "@/components/motion";
-import { loginAction, loginWithGoogleAction, loginSchema } from "@/lib/actions/auth";
+import { loginAction, loginWithGoogleAction } from "@/lib/actions/auth";
+import { loginSchema } from "@/lib/schemas/auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -42,22 +43,22 @@ export default function LoginPage() {
     <PageTransition className="w-full max-w-md space-y-0">
       {/* Mobile logo */}
       <MotionDiv variants={fadeInUp} className="flex items-center gap-2 mb-8 lg:hidden">
-        <Image src="/logo.png" alt="JokiPro Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
+        <Image src="/logo.png" alt="EduTasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
         <span className="text-lg font-bold">
-          Joki<span className="text-primary">Pro</span>
+          Edu<span className="text-primary">Tasky</span>
         </span>
       </MotionDiv>
 
       <MotionDiv variants={fadeInUp}>
         <h2 className="text-2xl font-bold tracking-tight">Selamat Datang Kembali</h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Masuk ke akun JokiPro Anda untuk melanjutkan.
+          Masuk ke akun EduTasky Anda untuk melanjutkan.
         </p>
       </MotionDiv>
 
       {/* Google OAuth */}
       <MotionDiv variants={fadeInUp} className="pt-8">
-        <form action={loginWithGoogleAction}>
+        <form action={() => loginWithGoogleAction()}>
           <Button type="submit" variant="outline" className="w-full h-12 rounded-xl gap-3 text-sm font-medium">
             <IconBrandGoogle size={20} />
             Masuk dengan Google

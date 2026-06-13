@@ -3,16 +3,16 @@ import { notFound } from "next/navigation";
 import {
   IconArrowLeft,
   IconStarFilled,
-  IconBriefcase,
   IconMapPin,
   IconShieldCheck,
   IconCalendarEvent,
   IconClock,
   IconChecks,
-  IconLink
+  IconLink,
+  IconBriefcase,
+  IconCash
 } from "@tabler/icons-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SkillTag } from "@/components/status-badge";
 import { UserAvatar } from "@/components/user-avatar";
 import { PageTransition, AnimatedCard } from "@/components/motion";
@@ -22,6 +22,8 @@ import { getWorkerById } from "@/lib/services/workers";
 export default async function WorkerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const worker = await getWorkerById(id);
+
+  console.log({ worker });
 
   if (!worker) {
     notFound();
@@ -47,14 +49,14 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ i
             <Card className="border-border/50 relative overflow-hidden">
               <div className="h-24 bg-gradient-to-r from-violet-600 to-indigo-600 absolute top-0 left-0 right-0 z-0" />
               <CardContent className="p-6 pt-12 relative z-10 flex flex-col items-center text-center">
-                <UserAvatar name={worker.name} size="xl" className="border-4 border-card mb-4 shadow-xl" />
-                
+                <UserAvatar name={worker.name} image={worker.image} size="xl" className="border-4 border-card mb-4 shadow-xl" />
+
                 <h1 className="text-xl font-bold tracking-tight flex items-center gap-1.5">
                   {worker.name}
                   {worker.verified && <IconShieldCheck size={20} className="text-blue-400" />}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">{worker.title}</p>
-                
+
                 <div className="flex items-center justify-center gap-4 mt-4 text-xs font-medium">
                   <span className="flex items-center gap-1 text-amber-400">
                     <IconStarFilled size={14} />
@@ -73,25 +75,29 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ i
 
           <AnimatedCard>
             <Card className="border-border/50">
-              <CardContent className="p-6 space-y-4 text-sm">
-                <h3 className="font-semibold text-base mb-2">Statistik Worker</h3>
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-muted-foreground flex items-center gap-2">
-                    <IconChecks size={16} /> Tugas Selesai
-                  </span>
-                  <span className="font-semibold">{worker.tasksCompleted}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-muted-foreground flex items-center gap-2">
-                    <IconClock size={16} /> Waktu Respons
-                  </span>
-                  <span className="font-semibold">{worker.responseTime}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-muted-foreground flex items-center gap-2">
-                    <IconCalendarEvent size={16} /> Bergabung Sejak
-                  </span>
-                  <span className="font-semibold">{worker.joinDate}</span>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
+                    <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
+                      <IconStarFilled size={16} className="text-amber-400" />
+                      {worker.rating}
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Rating</div>
+                  </div>
+                  <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
+                    <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
+                      <IconBriefcase size={16} className="text-primary" />
+                      {worker.tasksCompleted}
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Total Tugas</div>
+                  </div>
+                  <div className="rounded-xl bg-accent/50 p-3 sm:p-4 text-center">
+                    <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold">
+                      <IconCash size={16} className="text-emerald-400" />
+                      <span className="truncate">{worker.totalTransaction}</span>
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">Transaksi</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -107,7 +113,7 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ i
                 <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {worker.bio}
                 </div>
-                
+
                 <h3 className="font-semibold mt-6 mb-3">Keahlian (Skills)</h3>
                 <div className="flex flex-wrap gap-2">
                   {worker.skills.map((skill) => (
@@ -138,14 +144,14 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ i
                           </span>
                           <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">Buka Penuh</a>
                         </div>
-                        
+
                         <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border/50 bg-muted/30 flex items-center justify-center">
                           {isPdf ? (
                             <iframe src={`${url}#toolbar=0`} className="w-full h-full" title={`Portfolio ${idx + 1}`} />
                           ) : isImage ? (
                             <img src={url} alt={`Portfolio ${idx + 1}`} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="text-sm text-muted-foreground p-4 text-center">Format file tidak dapat dipratinjau.<br/><br/><a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Unduh File</a></div>
+                            <div className="text-sm text-muted-foreground p-4 text-center">Format file tidak dapat dipratinjau.<br /><br /><a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Unduh File</a></div>
                           )}
                         </div>
                       </div>

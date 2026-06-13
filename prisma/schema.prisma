@@ -159,7 +159,8 @@ model Bid {
 
   amount        Float // Harga yang ditawarkan worker
   coverLetter   String    @db.Text
-  estimatedDays Int // Estimasi hari penyelesaian
+  deadline      DateTime  @default(now()) // Deadline pengerjaan (tanggal & jam)
+  estimatedDays Int       @default(1) // Computed from deadline
   attachment    String? // Lampiran penawaran (PDF/Image)
   status        BidStatus @default(PENDING)
 
@@ -185,6 +186,7 @@ model Order {
   amount      Float // Nilai deal akhir (Berdasarkan Bid)
   platformFee Float // Komisi yang diambil platform
   status      PaymentStatus @default(PENDING_PAYMENT)
+  progress    Int           @default(0) // 0-100 progress percentage
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -283,4 +285,33 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// ======================= AI AGENT MODELS =======================
+
+model AgentLog {
+  id        String   @id @default(cuid())
+  taskId    String?
+  action    String   // "SCAN", "ANALYZE", "BID", "EXECUTE", "SUBMIT", "REVISE"
+  status    String   // "SUCCESS", "FAILED", "SKIPPED"
+  details   String?  @db.Text
+  tokens    Int?     // LLM tokens consumed
+  cost      Float?   // Estimated cost in USD
+  createdAt DateTime @default(now())
+}
+
+model AgentDraft {
+  id          String   @id @default(cuid())
+  taskId      String
+  orderId     String?  // Set when working on accepted order
+  type        String   // "BID" or "RESULT"
+  content     String   @db.Text  // Generated content (cover letter or result)
+  analysis    Json?    // Task analysis result from LLM
+  fileUrl     String?  // URL of generated file in MinIO
+  approved    Boolean  @default(false)
+  rejected    Boolean  @default(false)
+  reviewedBy  String?  // Admin user ID who reviewed
+  reviewNote  String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

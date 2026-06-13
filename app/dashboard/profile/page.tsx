@@ -22,7 +22,7 @@ export default async function ProfilePage() {
   }
 
   const userId = session.user.id;
-  
+
   const userData = await prisma.user.findUnique({
     where: { id: userId },
     include: {

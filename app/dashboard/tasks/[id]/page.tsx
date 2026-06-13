@@ -99,6 +99,7 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
       workerRating: bid.worker.workerProfile?.rating || 0,
       workerCompleted: bid.worker._count?.workerOrders || 0,
       amount: bid.amount,
+      deadline: bid.deadline,
       estimatedDays: bid.estimatedDays,
       coverLetter: bid.coverLetter,
       // @ts-ignore: VSCode TS Server cache issue

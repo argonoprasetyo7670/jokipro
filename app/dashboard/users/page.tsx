@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
 export const metadata = {
-  title: "Kelola Pengguna | JokiPro Admin",
+  title: "Kelola Pengguna | Edutasky Admin",
 };
 
 export default async function AdminUsersPage() {
@@ -39,7 +39,7 @@ export default async function AdminUsersPage() {
         {pendingWorkers.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center text-muted-foreground">
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              <svg xmlns="http://www.w3.org/.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="10" /></svg>
             </div>
             <p className="font-medium text-foreground">Semua bersih!</p>
             <p className="text-sm mt-1">Tidak ada worker yang perlu diverifikasi saat ini.</p>

@@ -84,11 +84,10 @@ export default function WorkerOnboardingPage() {
             const isDone = i < step;
             return (
               <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  isDone ? "bg-emerald-500 text-white" :
-                  isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" :
-                  "bg-accent text-muted-foreground"
-                }`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isDone ? "bg-emerald-500 text-white" :
+                    isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" :
+                      "bg-accent text-muted-foreground"
+                  }`}>
                   {isDone ? <IconCheck size={20} /> : <Icon size={20} />}
                 </div>
                 <span className={`text-[10px] sm:text-xs font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
@@ -190,7 +189,7 @@ export default function WorkerOnboardingPage() {
                   rows={4}
                   value={form.bio}
                   onChange={(e) => updateForm("bio", e.target.value)}
-                  placeholder="Ceritakan tentang diri Anda, pengalaman, dan kenapa Anda cocok menjadi worker di JokiPro..."
+                  placeholder="Ceritakan tentang diri Anda, pengalaman, dan kenapa Anda cocok menjadi worker di EduTasky..."
                   className="mt-2 rounded-xl resize-none"
                 />
               </div>

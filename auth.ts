@@ -5,6 +5,7 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "./auth.config";
+import { cookies } from "next/headers";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -12,8 +13,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
@@ -23,14 +24,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log("Credentials received:", { email: credentials?.email, hasPassword: !!credentials?.password });
         if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string }
         });
-
-        console.log("User found:", user ? user.email : "Not found");
 
         if (!user || !user.passwordHash) return null;
 
@@ -39,10 +37,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user.passwordHash
         );
 
-        console.log("Passwords match:", passwordsMatch);
-
         if (passwordsMatch) {
-          // You can map fields if needed, but Next-Auth usually looks for id, email, name, image
           return {
             id: user.id,
             email: user.email,
@@ -55,5 +50,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return null;
       }
     })
-  ]
+  ],
+  events: {
+    async createUser({ user }) {
+      // When a new user is created via Google OAuth,
+      // read the pending_role cookie to assign their role
+      try {
+        const cookieStore = await cookies();
+        const pendingRole = cookieStore.get("pending_role")?.value;
+
+        if (pendingRole && user.id && (pendingRole === "CLIENT" || pendingRole === "WORKER")) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { role: pendingRole },
+          });
+
+          // Create profile based on role
+          if (pendingRole === "CLIENT") {
+            await prisma.clientProfile.upsert({
+              where: { userId: user.id },
+              update: {},
+              create: { userId: user.id },
+            });
+          }
+          // WORKER will go through onboarding
+
+          console.log(`[Auth] Google user ${user.email} assigned role: ${pendingRole}`);
+        }
+
+        // Clear the cookie
+        cookieStore.delete("pending_role");
+      } catch (error) {
+        console.error("[Auth] Error assigning role to Google user:", error);
+      }
+    },
+  },
 });
+

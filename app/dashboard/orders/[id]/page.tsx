@@ -159,6 +159,24 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </div>
               </div>
             </div>
+
+            {/* Progress Bar */}
+            {order.task.status !== "COMPLETED" && (
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="text-muted-foreground">Progress Pengerjaan</span>
+                  <span className="font-bold text-primary">
+                    {order.task.status === "IN_REVIEW" ? 100 : order.progress || 0}%
+                  </span>
+                </div>
+                <div className="h-2.5 bg-accent rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                    style={{ width: `${order.task.status === "IN_REVIEW" ? 100 : order.progress || 0}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </AnimatedCard>
@@ -190,6 +208,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               taskId={order.taskId}
               taskStatus={order.task.status}
               userRole={session.user.id === order.workerId ? "WORKER" : "CLIENT"}
+              currentProgress={order.progress || 0}
             />
           </AnimatedCard>
 

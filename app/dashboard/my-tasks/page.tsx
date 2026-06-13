@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { IconPlus, IconMessageCircle, IconCash, IconClock } from "@tabler/icons-react";
 
 export const metadata = {
-  title: "Tugas Saya | JokiPro",
+  title: "Tugas Saya | Edutasky",
   description: "Kelola tugas yang telah Anda buat",
 };
 

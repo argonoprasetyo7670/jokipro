@@ -44,7 +44,7 @@ export function WorkerOverview({ userName, data }: { userName: string; data: Wor
       <AnimatedCard>
         <PageHeader
           title={`Selamat Datang, ${userName}! 👋`}
-          description="Berikut ringkasan aktivitas pengerjaan tugas Anda di JokiPro."
+          description="Berikut ringkasan aktivitas pengerjaan tugas Anda di EduTasky."
         />
       </AnimatedCard>
 

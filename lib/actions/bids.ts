@@ -4,13 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-
-export const bidSchema = z.object({
-  taskId: z.string().min(1, "Task ID is required"),
-  amount: z.coerce.number().min(10000, "Harga penawaran minimal Rp 10.000"),
-  estimatedDays: z.coerce.number().min(1, "Estimasi waktu minimal 1 hari"),
-  coverLetter: z.string().min(10, "Pesan minimal 10 karakter"),
-});
+import { bidSchema } from "@/lib/schemas/bids";
 
 export async function createBidAction(formData: FormData) {
   const session = await auth();
@@ -36,7 +30,7 @@ export async function createBidAction(formData: FormData) {
   const rawData = {
     taskId: formData.get("taskId"),
     amount: formData.get("amount"),
-    estimatedDays: formData.get("estimatedDays"),
+    deadline: formData.get("deadline"),
     coverLetter: formData.get("coverLetter"),
   };
 
@@ -46,7 +40,10 @@ export async function createBidAction(formData: FormData) {
     throw new Error(parsed.error.issues[0].message);
   }
 
-  const { taskId, amount, estimatedDays, coverLetter } = parsed.data;
+  const { taskId, amount, deadline, coverLetter } = parsed.data;
+
+  // Compute estimatedDays from deadline
+  const estimatedDays = Math.max(1, Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
 
   // Validate task status
   const task = await prisma.task.findUnique({
@@ -104,6 +101,7 @@ export async function createBidAction(formData: FormData) {
         taskId,
         workerId: session.user.id,
         amount,
+        deadline,
         estimatedDays,
         coverLetter,
         // @ts-ignore: VSCode TS Server cache issue

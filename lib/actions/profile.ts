@@ -1,16 +1,9 @@
 "use server";
 
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-
-export const profileSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  phone: z.string().optional(),
-  bio: z.string().optional(),
-  skills: z.array(z.string()).optional(),
-});
+import { profileSchema } from "@/lib/schemas/profile";
 
 export async function updateProfileAction(formData: FormData) {
   const session = await auth();

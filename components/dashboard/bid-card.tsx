@@ -37,6 +37,7 @@ interface BidCardProps {
     workerRating: number;
     workerCompleted: number;
     amount: number;
+    deadline: string | Date;
     estimatedDays: number;
     coverLetter: string;
     attachment: string | null;
@@ -71,11 +72,11 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Worker Info */}
         <div className="flex items-center gap-4 sm:w-1/3 shrink-0">
-          <Link href={`/profile/${bid.workerId}`} className="shrink-0">
+          <Link href={`/dashboard/workers/${bid.workerId}`} className="shrink-0">
             <UserAvatar name={bid.workerName} size="lg" className="hover:ring-2 hover:ring-primary transition-all" />
           </Link>
           <div className="min-w-0">
-            <Link href={`/profile/${bid.workerId}`} className="hover:underline">
+            <Link href={`/dashboard/workers/${bid.workerId}`} className="hover:underline">
               <h4 className="font-semibold text-sm truncate">{bid.workerName}</h4>
             </Link>
             <div className="flex items-center gap-3 mt-1">
@@ -107,7 +108,7 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
           <div className="flex flex-wrap items-center gap-4 mt-3">
             <span className="text-sm font-bold text-primary">{formattedAmount}</span>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
-              Estimasi: {bid.estimatedDays} hari
+              Deadline: {new Date(bid.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}, {new Date(bid.deadline).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
             </span>
           </div>
         </div>
@@ -129,14 +130,35 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
               </DialogHeader>
               
               <div className="space-y-4 py-4">
+                {/* Worker quick profile */}
+                <Link
+                  href={`/dashboard/workers/${bid.workerId}`}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 hover:bg-accent transition-colors"
+                >
+                  <UserAvatar name={bid.workerName} size="md" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{bid.workerName}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-0.5">
+                        <IconStarFilled size={10} className="text-amber-400" />
+                        {bid.workerRating.toFixed(1)}
+                      </span>
+                      <span>·</span>
+                      <span>{bid.workerCompleted} tugas selesai</span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-primary font-medium">Lihat Profil →</span>
+                </Link>
+
                 <div className="flex items-center justify-between p-4 bg-accent/50 rounded-xl">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Harga Penawaran</p>
                     <p className="font-bold text-primary text-lg">{formattedAmount}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-1">Estimasi Pengerjaan</p>
-                    <p className="font-semibold text-sm">{bid.estimatedDays} hari</p>
+                    <p className="text-xs text-muted-foreground mb-1">Deadline Pengerjaan</p>
+                    <p className="font-semibold text-sm">{new Date(bid.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(bid.deadline).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB</p>
                   </div>
                 </div>
 

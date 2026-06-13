@@ -2,26 +2,25 @@
 
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { cookies } from "next/headers";
 
-export async function loginWithGoogleAction() {
+export async function loginWithGoogleAction(role?: string) {
+  if (role) {
+    const cookieStore = await cookies();
+    cookieStore.set("pending_role", role, {
+      maxAge: 600, // 10 minutes, enough to complete OAuth
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
   await signIn("google", { redirectTo: "/dashboard" });
 }
 
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-
-export const loginSchema = z.object({
-  email: z.string().email("Format email tidak valid"),
-  password: z.string().min(1, "Password wajib diisi"),
-});
-
-export const registerSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  email: z.string().email("Format email tidak valid"),
-  password: z.string().min(8, "Password minimal 8 karakter"),
-  role: z.enum(["CLIENT", "WORKER"], { error: "Role wajib dipilih" }),
-});
+import { loginSchema, registerSchema } from "@/lib/schemas/auth";
 
 export async function registerAction(data: z.infer<typeof registerSchema>) {
   try {

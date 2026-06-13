@@ -25,8 +25,8 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      name: "Admin JokiPro",
-      email: "admin@jokipro.id",
+      name: "Admin EduTasky",
+      email: "admin@EduTasky.id",
       passwordHash,
       role: "ADMIN",
       emailVerified: new Date(),
@@ -547,7 +547,7 @@ async function main() {
   console.log("   ⭐ 1 review");
   console.log("   ⚠️  1 dispute");
   console.log("\n📧 Login credentials (all same password: password123):");
-  console.log("   Admin:  admin@jokipro.id");
+  console.log("   Admin:  admin@EduTasky.id");
   console.log("   Client: andi@worker.id / dewi@worker.id");
   console.log("   Worker: ahmad@worker.id / siti@worker.id / budi@worker.id");
 }

@@ -16,8 +16,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { IconInput } from "@/components/icon-input";
 import { Input } from "@/components/ui/input";
 import { PageTransition, MotionDiv, fadeInUp } from "@/components/motion";
-import { submitWorkerOnboardingAction, onboardingSchema } from "@/lib/actions/onboarding";
+import { submitWorkerOnboardingAction } from "@/lib/actions/onboarding";
+import { onboardingSchema } from "@/lib/schemas/onboarding";
 import { toast } from "sonner";
+import { validateFileSize } from "@/lib/validate-file";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -46,6 +48,16 @@ export default function WorkerOnboardingPage() {
     if (!e) return;
     const formData = new FormData(e.target);
 
+    // Client-side file size validation
+    const cvFile = formData.get("cvFile") as File | null;
+    const portfolioFiles = formData.getAll("portfolioFiles") as File[];
+    const allFiles = [cvFile, ...portfolioFiles].filter((f): f is File => f !== null && f.size > 0);
+    const fileError = validateFileSize(allFiles);
+    if (fileError) {
+      toast.error(fileError);
+      return;
+    }
+
     startTransition(async () => {
       try {
         const res = await submitWorkerOnboardingAction(formData);
@@ -68,7 +80,7 @@ export default function WorkerOnboardingPage() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx%3D%221%22%20cy%3D%221%22%20r%3D%221%22%20fill%3D%22rgba(255%2C255%2C255%2C0.05)%22%2F%3E%3C%2Fsvg%3E')] bg-repeat" />
           <div className="relative z-10 flex items-center gap-4 text-white">
             <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-              <Image src="/logo.png" alt="JokiPro Logo" width={40} height={40} className="object-contain drop-shadow-md brightness-0 invert" />
+              <Image src="/logo.png" alt="Edutasky Logo" width={40} height={40} className="object-contain drop-shadow-md brightness-0 invert" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Lengkapi Profil Worker</h1>

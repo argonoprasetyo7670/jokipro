@@ -29,15 +29,54 @@ export function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Smart polling: only when tab is visible, pause when hidden
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    async function loadCount() {
+      if (document.hidden) return; // Skip if tab not visible
+      try {
+        const count = await getUnreadNotificationCount();
+        setUnreadCount(count);
+      } catch {}
+    }
+
+    function startPolling() {
+      loadCount(); // Immediate check when becoming visible
+      interval = setInterval(loadCount, 60_000); // Every 60s
+    }
+
+    function stopPolling() {
+      if (interval) { clearInterval(interval); interval = null; }
+    }
+
+    function handleVisibility() {
+      if (document.hidden) { stopPolling(); } else { startPolling(); }
+    }
+
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
+  // Load full notifications when popover opens
+  useEffect(() => {
+    if (!isOpen) return;
     async function loadNotifications() {
-      const data = await getNotifications();
-      const count = await getUnreadNotificationCount();
-      setNotifications(data);
-      setUnreadCount(count);
+      try {
+        const [data, count] = await Promise.all([
+          getNotifications(),
+          getUnreadNotificationCount(),
+        ]);
+        setNotifications(data);
+        setUnreadCount(count);
+      } catch {}
     }
     loadNotifications();
-  }, [isOpen]); // Reload when popover is opened
+  }, [isOpen]);
 
   const handleMarkAsRead = async (id: string) => {
     await markNotificationAsRead(id);

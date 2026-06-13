@@ -71,16 +71,30 @@ export async function getWorkerById(id: string) {
 
   if (!worker || worker.role !== "WORKER") return null;
 
+  // Calculate total transactions
+  const orders = await prisma.order.findMany({
+    where: { workerId: id, status: "RELEASED" },
+    select: { amount: true, platformFee: true }
+  });
+  const earned = orders.reduce((sum, order) => sum + (order.amount - order.platformFee), 0);
+  const totalTransaction = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(earned);
+
   // Calculate join date
   const joinDate = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(worker.createdAt);
 
   return {
     id: worker.id,
     name: worker.name || worker.email || "Unknown Worker",
+    image: worker.image,
     title: worker.workerProfile?.educationLevel ? `${worker.workerProfile.educationLevel} di ${worker.workerProfile.university}` : "Profesional Freelancer",
     rating: worker.workerProfile?.rating || 0,
     reviews: worker._count.receivedReviews,
     tasksCompleted: worker._count.workerOrders,
+    totalTransaction,
     location: "Indonesia",
     joinDate,
     responseTime: "< 24 Jam", // Not tracked in DB yet

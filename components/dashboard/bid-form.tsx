@@ -1,14 +1,16 @@
 "use client";
 
 import { useRef, useTransition } from "react";
-import { IconSend, IconLoader2 } from "@tabler/icons-react";
+import { IconSend, IconLoader2, IconCalendarEvent } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createBidAction, bidSchema } from "@/lib/actions/bids";
+import { createBidAction } from "@/lib/actions/bids";
+import { bidSchema } from "@/lib/schemas/bids";
 import { toast } from "sonner";
+import { validateFileSize } from "@/lib/validate-file";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,9 +19,15 @@ interface BidFormProps {
   taskId: string;
 }
 
+// Get minimum datetime string (now + 1 hour)
+function getMinDatetime(): string {
+  const now = new Date();
+  now.setHours(now.getHours() + 1);
+  return now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+}
+
 export function BidForm({ taskId }: BidFormProps) {
   const [isPending, startTransition] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
 
   const {
     register,
@@ -31,7 +39,7 @@ export function BidForm({ taskId }: BidFormProps) {
     defaultValues: {
       taskId: taskId,
       amount: "" as unknown as number,
-      estimatedDays: "" as unknown as number,
+      deadline: "" as unknown as Date,
       coverLetter: "",
     },
   });
@@ -39,6 +47,16 @@ export function BidForm({ taskId }: BidFormProps) {
   const onSubmit = (data: z.infer<typeof bidSchema>, e?: React.BaseSyntheticEvent) => {
     if (!e) return;
     const formData = new FormData(e.target);
+
+    // Client-side file size validation
+    const attachment = formData.get("attachment") as File | null;
+    if (attachment && attachment.size > 0) {
+      const fileError = validateFileSize([attachment]);
+      if (fileError) {
+        toast.error(fileError);
+        return;
+      }
+    }
 
     startTransition(async () => {
       try {
@@ -77,16 +95,20 @@ export function BidForm({ taskId }: BidFormProps) {
           </div>
 
           <div>
-            <Label className="text-xs" htmlFor="estimatedDays">Estimasi Pengerjaan (Hari)</Label>
+            <Label className="text-xs flex items-center gap-1" htmlFor="deadline">
+              <IconCalendarEvent size={14} />
+              Deadline Pengerjaan
+            </Label>
             <Input 
-              id="estimatedDays"
-              type="number" 
-              placeholder="2" 
+              id="deadline"
+              type="datetime-local" 
+              min={getMinDatetime()}
               disabled={isPending}
-              className={`mt-1.5 rounded-xl h-10 bg-background ${errors.estimatedDays ? "border-red-500" : ""}`} 
-              {...register("estimatedDays")}
+              className={`mt-1.5 rounded-xl h-10 bg-background ${errors.deadline ? "border-red-500" : ""}`} 
+              {...register("deadline")}
             />
-            {errors.estimatedDays && <p className="text-xs text-red-500 mt-1">{errors.estimatedDays.message}</p>}
+            <p className="text-[10px] text-muted-foreground mt-1">Pilih tanggal dan jam deadline Anda bisa menyelesaikan tugas ini.</p>
+            {errors.deadline && <p className="text-xs text-red-500 mt-1">{errors.deadline.message}</p>}
           </div>
 
           <div>

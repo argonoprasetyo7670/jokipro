@@ -34,7 +34,8 @@ export const authConfig = {
 
         // Role-based protection map
         const adminOnlyRoutes = ["/dashboard/clients", "/dashboard/users", "/dashboard/admin-keren"];
-        const clientOnlyRoutes = ["/dashboard/tasks/new", "/dashboard/my-tasks", "/dashboard/workers"];
+        const clientOnlyRoutes = ["/dashboard/tasks/new", "/dashboard/my-tasks"];
+        const clientAdminRoutes = ["/dashboard/workers"];
         const workerClientRoutes = ["/dashboard/orders"];
 
         // Check Admin only
@@ -45,6 +46,11 @@ export const authConfig = {
         // Check Client only
         if (clientOnlyRoutes.some(route => nextUrl.pathname.startsWith(route))) {
           if (role !== "CLIENT") return Response.redirect(new URL("/dashboard", nextUrl));
+        }
+
+        // Check Client & Admin
+        if (clientAdminRoutes.some(route => nextUrl.pathname.startsWith(route))) {
+          if (role !== "CLIENT" && role !== "ADMIN") return Response.redirect(new URL("/dashboard", nextUrl));
         }
 
         // Check Worker & Client only

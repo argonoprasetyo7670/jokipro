@@ -118,96 +118,90 @@ export default async function OrdersPage(props: { searchParams?: Promise<{ statu
             if (taskStatus === "COMPLETED") uiStatus = "COMPLETED";
             if (taskStatus === "IN_DISPUTE") uiStatus = "DISPUTE";
 
-            // Dummy progress based on status
-            const progress = taskStatus === "COMPLETED" ? 100 : taskStatus === "IN_REVIEW" ? 90 : 40;
+            // Use real progress from database
+            const progress = taskStatus === "COMPLETED" ? 100 : taskStatus === "IN_REVIEW" ? 100 : (order.progress || 0);
 
             const targetUser = userRole === "CLIENT" ? order.worker : order.client;
 
             return (
               <AnimatedCard key={order.id}>
-                <Card className="border-border/50 hover:border-primary/20 transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                      {/* Avatar */}
-                      <UserAvatar name={targetUser.name || "User"} image={targetUser.image} size="md" className="hidden sm:flex" />
+                <Link href={`/dashboard/orders/${order.id}`} className="block group">
+                  <Card className="border-border/50 group-hover:border-primary/40 group-hover:shadow-md transition-all duration-300">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        {/* Avatar */}
+                        <UserAvatar name={targetUser.name || "User"} image={targetUser.image} size="md" className="hidden sm:flex" />
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-xs text-muted-foreground font-mono">#{order.id.slice(0, 8)}</span>
-                          <StatusBadge
-                            status={uiStatus}
-                            icon={
-                              uiStatus === "IN_PROGRESS" ? <IconClock size={12} /> :
-                              uiStatus === "REVIEW" ? <IconEye size={12} /> :
-                              uiStatus === "COMPLETED" ? <IconCheck size={12} /> :
-                              <IconAlertTriangle size={12} />
-                            }
-                          />
-                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="text-xs text-muted-foreground font-mono">#{order.id.slice(0, 8)}</span>
+                            <StatusBadge
+                              status={uiStatus}
+                              icon={
+                                uiStatus === "IN_PROGRESS" ? <IconClock size={12} /> :
+                                uiStatus === "REVIEW" ? <IconEye size={12} /> :
+                                uiStatus === "COMPLETED" ? <IconCheck size={12} /> :
+                                <IconAlertTriangle size={12} />
+                              }
+                            />
+                          </div>
 
-                        <h3 className="font-semibold text-sm line-clamp-1">{order.task.title}</h3>
+                          <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">{order.task.title}</h3>
 
-                        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
-                          <span>{userRole === "CLIENT" ? "Worker" : "Client"}: <strong className="text-foreground">{targetUser.name}</strong></span>
-                          <span>·</span>
-                          <span className="flex items-center gap-1">
-                            <IconClock size={13} />
-                            Deadline: {formatDate(order.task.deadline)}
-                          </span>
-                        </div>
+                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+                            <span>{userRole === "CLIENT" ? "Worker" : "Client"}: <strong className="text-foreground">{targetUser.name}</strong></span>
+                            <span>·</span>
+                            <span className="flex items-center gap-1">
+                              <IconClock size={13} />
+                              Deadline: {formatDate(order.task.deadline)}
+                            </span>
+                          </div>
 
-                        {/* Progress bar */}
-                        {taskStatus !== "COMPLETED" && (
-                          <div className="mt-3">
-                            <div className="flex items-center justify-between text-xs mb-1.5">
-                              <span className="text-muted-foreground">Progres</span>
-                              <span className="font-semibold">{progress}%</span>
+                          {/* Progress bar */}
+                          {taskStatus !== "COMPLETED" && (
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between text-xs mb-1.5">
+                                <span className="text-muted-foreground">Progres</span>
+                                <span className="font-semibold">{progress}%</span>
+                              </div>
+                              <div className="h-2 bg-accent rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="h-2 bg-accent rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
-                                style={{ width: `${progress}%` }}
-                              />
+                          )}
+                        </div>
+
+                        {/* Right side */}
+                        <div className="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0">
+                          <div className="text-base sm:text-lg font-bold text-primary">{formatCurrency(order.amount)}</div>
+                          <div className="flex gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg border bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                              <IconMessageCircle size={16} />
+                            </div>
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg border bg-background hover:bg-accent hover:text-accent-foreground transition-colors">
+                              <IconEye size={16} />
                             </div>
                           </div>
-                        )}
-                      </div>
-
-                      {/* Right side */}
-                      <div className="flex sm:flex-col items-center sm:items-end gap-3 flex-shrink-0">
-                        <div className="text-base sm:text-lg font-bold text-primary">{formatCurrency(order.amount)}</div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
-                            <Link href={`/dashboard/orders/${order.id}`}>
-                              <IconMessageCircle size={16} />
-                            </Link>
-                          </Button>
-                          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" asChild>
-                            <Link href={`/dashboard/orders/${order.id}`}>
-                              <IconEye size={16} />
-                            </Link>
-                          </Button>
-                        </div>
-                        {userRole === "CLIENT" && taskStatus === "IN_REVIEW" && (
-                          <Button size="sm" className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs hover:from-emerald-400 hover:to-teal-400" asChild>
-                            <Link href={`/dashboard/orders/${order.id}`}>
+                          {userRole === "CLIENT" && taskStatus === "IN_REVIEW" && (
+                            <div className="inline-flex h-8 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3 text-xs font-medium text-white hover:from-emerald-400 hover:to-teal-400 transition-colors">
                               Terima Hasil
-                            </Link>
-                          </Button>
-                        )}
-                        {taskStatus === "COMPLETED" && (
-                          <Button variant="outline" size="sm" className="rounded-lg border-amber-500/30 text-amber-400 text-xs hover:bg-amber-500/10" asChild>
-                            <Link href={`/dashboard/orders/${order.id}`}>
-                              <IconStarFilled size={14} />
+                            </div>
+                          )}
+                          {taskStatus === "COMPLETED" && (
+                            <div className="inline-flex h-8 items-center justify-center rounded-lg border border-amber-500/30 px-3 text-xs font-medium text-amber-400 hover:bg-amber-500/10 transition-colors">
+                              <IconStarFilled size={14} className="mr-1" />
                               Beri Rating
-                            </Link>
-                          </Button>
-                        )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               </AnimatedCard>
             );
           })

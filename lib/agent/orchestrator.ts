@@ -1,0 +1,261 @@
+// =============================================
+// AI Agent Worker — Multi-Agent Orchestrator
+// =============================================
+
+import { prisma } from "@/lib/prisma";
+import { agents, agentGlobalConfig } from "./config";
+import type { AgentProfile } from "./config";
+import { scanAvailableTasks, getAgentAcceptedOrders, getOrdersNeedingRevision } from "./scanner";
+import { analyzeTask } from "./analyzer";
+import { generateAndSubmitBid } from "./bidder";
+import { executeTask, executeRevision } from "./executor";
+import type { AgentCycleResult } from "./types";
+
+/**
+ * Ensure an agent user exists in the database.
+ * Creates the Worker account + profile if not found.
+ */
+async function ensureAgentUser(agent: AgentProfile): Promise<string> {
+  if (agent.userId) return agent.userId;
+
+  let user = await prisma.user.findUnique({
+    where: { email: agent.email },
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: agent.email,
+        name: agent.name,
+        role: "WORKER",
+        passwordHash: "AGENT_NO_LOGIN",
+      },
+    });
+
+    await prisma.workerProfile.create({
+      data: {
+        userId: user.id,
+        bio: agent.bio,
+        skills: agent.skills,
+        university: agent.university,
+        major: agent.major,
+        educationLevel: agent.educationLevel,
+        graduationYear: agent.graduationYear,
+        kycStatus: "APPROVED",
+        verifiedAt: new Date(),
+      },
+    });
+
+    console.log(`🤖 [${agent.key}] Created agent user: ${agent.name} (${user.id})`);
+  }
+
+  agent.userId = user.id;
+  return user.id;
+}
+
+/**
+ * Run one agent's complete cycle: scan → analyze → bid → execute → revise.
+ */
+async function runSingleAgentCycle(agent: AgentProfile): Promise<AgentCycleResult> {
+  const result: AgentCycleResult = {
+    scanned: 0,
+    analyzed: 0,
+    bidded: 0,
+    executed: 0,
+    skipped: 0,
+    errors: [],
+  };
+
+  console.log(`\n🤖 [${agent.key}] ${agent.name} starting cycle...`);
+  console.log(`   Spesialisasi: ${agent.specializations.join(", ")}`);
+
+  // =================== PHASE 1: SCAN & BID ===================
+  const tasks = await scanAvailableTasks(agent);
+  result.scanned = tasks.length;
+  console.log(`   📋 Found ${tasks.length} available tasks`);
+
+  // Check concurrent limit
+  const currentOrders = await prisma.order.count({
+    where: {
+      workerId: agent.userId,
+      task: { status: { in: ["IN_PROGRESS", "IN_REVIEW"] } },
+    },
+  });
+  const canTakeMore = agentGlobalConfig.maxConcurrentTasksPerAgent - currentOrders;
+
+  for (const task of tasks) {
+    if (canTakeMore > 0 && result.bidded >= canTakeMore) {
+      console.log(`   ⚠️ Concurrent limit reached (${agentGlobalConfig.maxConcurrentTasksPerAgent})`);
+      break;
+    }
+
+    try {
+      const { analysis } = await analyzeTask(agent, task);
+      result.analyzed++;
+
+      if (!analysis.canHandle) {
+        console.log(`   ⏭️ Skip: "${task.title}" — ${analysis.reason}`);
+        result.skipped++;
+        continue;
+      }
+
+      await generateAndSubmitBid(agent, { ...task, clientId: task.clientId }, analysis);
+      result.bidded++;
+      console.log(`   ✅ Bid: "${task.title}" — Rp ${new Intl.NumberFormat("id-ID").format(analysis.suggestedPrice)}`);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      result.errors.push(`[${agent.key}] Task ${task.id}: ${msg}`);
+      console.error(`   ❌ Error: "${task.title}" — ${msg}`);
+    }
+  }
+
+  // =================== PHASE 2: EXECUTE ===================
+  const acceptedOrders = await getAgentAcceptedOrders(agent);
+  console.log(`   📦 Found ${acceptedOrders.length} orders to execute`);
+
+  for (const order of acceptedOrders) {
+    try {
+      const existingDraft = await prisma.agentDraft.findFirst({
+        where: { taskId: order.taskId, orderId: order.id, type: "RESULT", rejected: false },
+      });
+      if (existingDraft) {
+        console.log(`   ⏭️ Already drafted: "${order.task.title}"`);
+        continue;
+      }
+
+      const { result: taskResult } = await executeTask(agent, order.task);
+
+      if (agentGlobalConfig.autoSubmit) {
+        await prisma.$transaction(async (tx) => {
+          await tx.task.update({ where: { id: order.taskId }, data: { status: "IN_REVIEW" } });
+          await tx.message.create({
+            data: { taskId: order.taskId, senderId: agent.userId, content: taskResult.content },
+          });
+          await tx.message.create({
+            data: { taskId: order.taskId, senderId: agent.userId, content: "📦 Saya telah menyelesaikan pekerjaan ini. Silakan periksa hasilnya." },
+          });
+          await tx.notification.create({
+            data: {
+              userId: order.clientId,
+              title: "Hasil Kerja Dikirim 📦",
+              message: `${agent.name} telah mengirimkan hasil untuk tugas "${order.task.title}".`,
+              link: `/dashboard/orders/${order.id}`,
+            },
+          });
+        });
+      } else {
+        await prisma.agentDraft.create({
+          data: {
+            taskId: order.taskId,
+            orderId: order.id,
+            type: "RESULT",
+            content: taskResult.content,
+            analysis: { agentKey: agent.key, agentName: agent.name, summary: taskResult.summary },
+          },
+        });
+      }
+
+      result.executed++;
+      console.log(`   ✅ Executed: "${order.task.title}"`);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      result.errors.push(`[${agent.key}] Order ${order.id}: ${msg}`);
+    }
+  }
+
+  // =================== PHASE 3: REVISIONS ===================
+  if (agentGlobalConfig.autoRevise) {
+    const revisionOrders = await getOrdersNeedingRevision(agent);
+    for (const order of revisionOrders) {
+      try {
+        const revisionMessage = order.task.messages.find(
+          (m: any) => m.content.includes("Revisi Diminta")
+        );
+        if (!revisionMessage) continue;
+
+        const previousDraft = await prisma.agentDraft.findFirst({
+          where: { taskId: order.taskId, type: "RESULT" },
+          orderBy: { createdAt: "desc" },
+        });
+
+        const { result: revisedResult } = await executeRevision(agent, {
+          taskId: order.taskId,
+          title: order.task.title,
+          category: order.task.category,
+          description: order.task.description,
+          originalContent: previousDraft?.content ?? "",
+          revisionNote: revisionMessage.content.replace("🔄 **Revisi Diminta:**\n", "").trim(),
+        });
+
+        await prisma.agentDraft.create({
+          data: {
+            taskId: order.taskId,
+            orderId: order.id,
+            type: "RESULT",
+            content: revisedResult.content,
+            analysis: { agentKey: agent.key, agentName: agent.name, summary: revisedResult.summary, isRevision: true },
+          },
+        });
+
+        console.log(`   🔄 Revision: "${order.task.title}"`);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        result.errors.push(`[${agent.key}] Revision: ${msg}`);
+      }
+    }
+  }
+
+  console.log(`🤖 [${agent.key}] Cycle done — Scanned: ${result.scanned}, Bid: ${result.bidded}, Executed: ${result.executed}`);
+  return result;
+}
+
+/**
+ * Run ALL agents in parallel.
+ * Each agent independently scans, bids, and executes for their specialization.
+ */
+export async function runAgentCycle(): Promise<{
+  agents: Record<string, AgentCycleResult>;
+  summary: AgentCycleResult;
+}> {
+  console.log("=".repeat(60));
+  console.log("🤖 Multi-Agent Cycle Starting...");
+  console.log(`   Agents: ${agents.map((a) => `${a.name} (${a.key})`).join(", ")}`);
+  console.log("=".repeat(60));
+
+  // Ensure all agent users exist
+  await Promise.all(agents.map((a) => ensureAgentUser(a)));
+
+  // Run all agents in parallel
+  const results = await Promise.allSettled(
+    agents.map(async (agent) => ({
+      key: agent.key,
+      result: await runSingleAgentCycle(agent),
+    }))
+  );
+
+  // Aggregate results
+  const agentResults: Record<string, AgentCycleResult> = {};
+  const summary: AgentCycleResult = {
+    scanned: 0, analyzed: 0, bidded: 0, executed: 0, skipped: 0, errors: [],
+  };
+
+  for (const r of results) {
+    if (r.status === "fulfilled") {
+      agentResults[r.value.key] = r.value.result;
+      summary.scanned += r.value.result.scanned;
+      summary.analyzed += r.value.result.analyzed;
+      summary.bidded += r.value.result.bidded;
+      summary.executed += r.value.result.executed;
+      summary.skipped += r.value.result.skipped;
+      summary.errors.push(...r.value.result.errors);
+    } else {
+      summary.errors.push(`Agent failed: ${r.reason}`);
+    }
+  }
+
+  console.log("=".repeat(60));
+  console.log("🤖 All agents done!", summary);
+  console.log("=".repeat(60));
+
+  return { agents: agentResults, summary };
+}

@@ -7,6 +7,19 @@ import { revalidatePath } from "next/cache";
 import { taskSchema } from "@/lib/schemas/tasks";
 import { uploadFileToMinio } from "@/lib/s3";
 
+/**
+ * Fire-and-forget trigger for the AI Agent cycle.
+ * Called after a new task is created so the agent can bid on it.
+ */
+async function triggerAgentCycle() {
+  try {
+    const { runAgentCycle } = await import("@/lib/agent/orchestrator");
+    await runAgentCycle();
+  } catch (error) {
+    console.error("[Agent Trigger] Error:", error);
+  }
+}
+
 export async function createTaskAction(formData: FormData) {
   try {
     const session = await auth();
@@ -55,6 +68,11 @@ export async function createTaskAction(formData: FormData) {
 
     revalidatePath("/dashboard/tasks");
     revalidatePath("/dashboard");
+
+    // 🤖 Event-driven: Trigger AI Agent to scan this new task
+    triggerAgentCycle().catch((err) =>
+      console.error("[Agent Trigger] Failed:", err)
+    );
 
     return { success: true, taskId: task.id };
   } catch (error) {
