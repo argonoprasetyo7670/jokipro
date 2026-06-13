@@ -261,7 +261,18 @@ export default async function TaskDetailPage({ params }: { params: Promise<{ id:
           {/* Quick Bid (Only for Worker) */}
           {userRole === "WORKER" && task.status === "OPEN" && workerKycStatus === "APPROVED" && (
             <AnimatedCard>
-              <BidForm taskId={task.id} />
+              {task.bids.some((b: any) => b.workerId === session?.user?.id) ? (
+                <Card className="border-border/50 bg-emerald-500/5 border-emerald-500/20">
+                  <CardContent className="p-4 sm:p-6 text-center">
+                    <h3 className="font-semibold text-sm mb-1 text-emerald-600 dark:text-emerald-400">Penawaran Terkirim ✅</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Anda sudah mengajukan penawaran untuk tugas ini. Tunggu keputusan dari Client.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <BidForm taskId={task.id} />
+              )}
             </AnimatedCard>
           )}
 

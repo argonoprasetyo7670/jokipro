@@ -212,31 +212,84 @@ export default function NewTaskPage() {
                   <Controller
                     name="deadline"
                     control={control}
-                    render={({ field }) => (
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "mt-2 rounded-xl h-12 justify-start text-left font-normal bg-background",
-                              !field.value && "text-muted-foreground",
-                              errors.deadline && "border-destructive"
-                            )}
-                          >
-                            <IconCalendar className="mr-2 h-4 w-4" />
-                            {field.value ? format(new Date(field.value), "PPP", { locale: id }) : <span>Pilih tanggal</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    )}
+                    render={({ field }) => {
+                      const selectedDate = field.value ? new Date(field.value) : undefined;
+                      const hours = selectedDate ? selectedDate.getHours().toString().padStart(2, "0") : "23";
+                      const minutes = selectedDate ? selectedDate.getMinutes().toString().padStart(2, "0") : "59";
+
+                      const updateTime = (h: string, m: string) => {
+                        if (!selectedDate) return;
+                        const newDate = new Date(selectedDate);
+                        newDate.setHours(parseInt(h), parseInt(m), 0, 0);
+                        field.onChange(newDate);
+                      };
+
+                      return (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "mt-2 rounded-xl h-12 justify-start text-left font-normal bg-background",
+                                !field.value && "text-muted-foreground",
+                                errors.deadline && "border-destructive"
+                              )}
+                            >
+                              <IconCalendar className="mr-2 h-4 w-4" />
+                              {field.value
+                                ? format(new Date(field.value), "dd MMM yyyy, HH:mm", { locale: id })
+                                : <span>Pilih tanggal & waktu</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedDate}
+                              onSelect={(date) => {
+                                if (!date) return;
+                                // Preserve existing time or default to 23:59
+                                const h = selectedDate ? selectedDate.getHours() : 23;
+                                const m = selectedDate ? selectedDate.getMinutes() : 59;
+                                date.setHours(h, m, 0, 0);
+                                field.onChange(date);
+                              }}
+                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                            />
+                            {/* Time Picker */}
+                            <div className="border-t px-3 py-3 flex items-center gap-2">
+                              <IconCalendar size={14} className="text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Jam:</span>
+                              <select
+                                value={hours}
+                                onChange={(e) => updateTime(e.target.value, minutes)}
+                                disabled={!selectedDate}
+                                className="h-8 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                              >
+                                {Array.from({ length: 24 }, (_, i) => (
+                                  <option key={i} value={i.toString().padStart(2, "0")}>
+                                    {i.toString().padStart(2, "0")}
+                                  </option>
+                                ))}
+                              </select>
+                              <span className="text-sm font-bold text-muted-foreground">:</span>
+                              <select
+                                value={minutes}
+                                onChange={(e) => updateTime(hours, e.target.value)}
+                                disabled={!selectedDate}
+                                className="h-8 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                              >
+                                {Array.from({ length: 12 }, (_, i) => (
+                                  <option key={i * 5} value={(i * 5).toString().padStart(2, "0")}>
+                                    {(i * 5).toString().padStart(2, "0")}
+                                  </option>
+                                ))}
+                              </select>
+                              <span className="text-[10px] text-muted-foreground ml-1">WIB</span>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    }}
                   />
                   {errors.deadline && <p className="text-xs text-destructive mt-1">{errors.deadline.message}</p>}
                 </div>

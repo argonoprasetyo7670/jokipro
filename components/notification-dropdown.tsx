@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { IconBell, IconCheck, IconChecks } from "@tabler/icons-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { 
@@ -28,6 +29,7 @@ export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Smart polling: only when tab is visible, pause when hidden
   useEffect(() => {
@@ -66,6 +68,7 @@ export function NotificationDropdown() {
   useEffect(() => {
     if (!isOpen) return;
     async function loadNotifications() {
+      setIsLoading(true);
       try {
         const [data, count] = await Promise.all([
           getNotifications(),
@@ -74,6 +77,7 @@ export function NotificationDropdown() {
         setNotifications(data);
         setUnreadCount(count);
       } catch {}
+      setIsLoading(false);
     }
     loadNotifications();
   }, [isOpen]);
@@ -120,7 +124,20 @@ export function NotificationDropdown() {
         </div>
         
         <div className="max-h-[400px] overflow-y-auto">
-          {notifications.length > 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col divide-y divide-border/50">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-3 p-4">
+                  <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-3/4" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-2.5 w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : notifications.length > 0 ? (
             <div className="flex flex-col divide-y divide-border/50">
               {notifications.map((notification) => (
                 <div 

@@ -1,29 +1,27 @@
 "use client";
 
-import { useRef, useTransition } from "react";
-import { IconSend, IconLoader2, IconCalendarEvent } from "@tabler/icons-react";
+import { useState, useTransition } from "react";
+import { IconSend, IconLoader2, IconCalendar } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 import { createBidAction } from "@/lib/actions/bids";
-import { bidSchema } from "@/lib/schemas/bids";
 import { toast } from "sonner";
 import { validateFileSize } from "@/lib/validate-file";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { bidSchema } from "@/lib/schemas/bids";
 import * as z from "zod";
 
 interface BidFormProps {
   taskId: string;
-}
-
-// Get minimum datetime string (now + 1 hour)
-function getMinDatetime(): string {
-  const now = new Date();
-  now.setHours(now.getHours() + 1);
-  return now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
 }
 
 export function BidForm({ taskId }: BidFormProps) {
@@ -32,6 +30,7 @@ export function BidForm({ taskId }: BidFormProps) {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm<z.infer<typeof bidSchema>>({
@@ -47,6 +46,11 @@ export function BidForm({ taskId }: BidFormProps) {
   const onSubmit = (data: z.infer<typeof bidSchema>, e?: React.BaseSyntheticEvent) => {
     if (!e) return;
     const formData = new FormData(e.target);
+
+    // Ensure deadline is submitted as ISO string
+    if (data.deadline) {
+      formData.set("deadline", new Date(data.deadline).toISOString());
+    }
 
     // Client-side file size validation
     const attachment = formData.get("attachment") as File | null;
@@ -94,20 +98,101 @@ export function BidForm({ taskId }: BidFormProps) {
             {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount.message}</p>}
           </div>
 
+          {/* Deadline — Calendar + Time Picker */}
           <div>
-            <Label className="text-xs flex items-center gap-1" htmlFor="deadline">
-              <IconCalendarEvent size={14} />
+            <Label className="text-xs flex items-center gap-1">
+              <IconCalendar size={14} />
               Deadline Pengerjaan
             </Label>
-            <Input 
-              id="deadline"
-              type="datetime-local" 
-              min={getMinDatetime()}
-              disabled={isPending}
-              className={`mt-1.5 rounded-xl h-10 bg-background ${errors.deadline ? "border-red-500" : ""}`} 
-              {...register("deadline")}
+            <Controller
+              name="deadline"
+              control={control}
+              render={({ field }) => {
+                const selectedDate = field.value ? new Date(field.value) : undefined;
+                const hours = selectedDate ? selectedDate.getHours().toString().padStart(2, "0") : "23";
+                const minutes = selectedDate ? selectedDate.getMinutes().toString().padStart(2, "0") : "59";
+
+                const updateTime = (h: string, m: string) => {
+                  if (!selectedDate) return;
+                  const newDate = new Date(selectedDate);
+                  newDate.setHours(parseInt(h), parseInt(m), 0, 0);
+                  field.onChange(newDate);
+                };
+
+                return (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "w-full mt-1.5 rounded-xl h-10 justify-start text-left font-normal bg-background text-sm",
+                          !field.value && "text-muted-foreground",
+                          errors.deadline && "border-red-500"
+                        )}
+                        disabled={isPending}
+                      >
+                        <IconCalendar className="mr-2 h-4 w-4 shrink-0" />
+                        {field.value
+                          ? format(new Date(field.value), "dd MMM yyyy, HH:mm", { locale: localeId })
+                          : "Pilih tanggal & waktu"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => {
+                          if (!date) return;
+                          const h = selectedDate ? selectedDate.getHours() : 23;
+                          const m = selectedDate ? selectedDate.getMinutes() : 59;
+                          date.setHours(h, m, 0, 0);
+                          field.onChange(date);
+                        }}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      />
+                      {/* Time Picker */}
+                      <div className="border-t px-3 py-3 flex items-center gap-2">
+                        <IconCalendar size={14} className="text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Jam:</span>
+                        <select
+                          value={hours}
+                          onChange={(e) => updateTime(e.target.value, minutes)}
+                          disabled={!selectedDate}
+                          className="h-8 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {Array.from({ length: 24 }, (_, i) => (
+                            <option key={i} value={i.toString().padStart(2, "0")}>
+                              {i.toString().padStart(2, "0")}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-sm font-bold text-muted-foreground">:</span>
+                        <select
+                          value={minutes}
+                          onChange={(e) => updateTime(hours, e.target.value)}
+                          disabled={!selectedDate}
+                          className="h-8 rounded-md border bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <option key={i * 5} value={(i * 5).toString().padStart(2, "0")}>
+                              {(i * 5).toString().padStart(2, "0")}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="text-[10px] text-muted-foreground ml-1">WIB</span>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                );
+              }}
             />
-            <p className="text-[10px] text-muted-foreground mt-1">Pilih tanggal dan jam deadline Anda bisa menyelesaikan tugas ini.</p>
+            {/* Hidden input for form submission */}
+            <input type="hidden" name="deadline" value={
+              // We need the Controller value to be serialized for FormData
+              ""
+            } />
+            <p className="text-[10px] text-muted-foreground mt-1">Pilih tanggal dan jam kapan Anda bisa menyelesaikan tugas ini.</p>
             {errors.deadline && <p className="text-xs text-red-500 mt-1">{errors.deadline.message}</p>}
           </div>
 
