@@ -33,10 +33,10 @@ interface AdminData {
 
 export function AdminOverview({ userName, data }: { userName: string; data: AdminData }) {
   const stats = [
-    { label: "Total Pengguna", value: formatNumber(data.totalUsers), change: "Akun Terdaftar", icon: IconUsers, gradient: "from-blue-500 to-indigo-500" },
+    { label: "Total Pengguna", value: formatNumber(data.totalUsers), change: "Akun Terdaftar", icon: IconUsers, gradient: "from-blue-500 to-secondary" },
     { label: "Total Transaksi", value: formatRupiah(data.totalTransaction), change: "Nilai Order", icon: IconReceipt, gradient: "from-emerald-500 to-teal-500" },
     { label: "Dispute Aktif", value: data.openDisputes.toString(), change: "Perlu mediasi", icon: IconAlertCircle, gradient: "from-red-500 to-rose-500" },
-    { label: "Keuntungan Platform", value: formatRupiah(data.platformProfit), change: "Potongan Fee", icon: IconWallet, gradient: "from-violet-500 to-purple-500" },
+    { label: "Keuntungan Platform", value: formatRupiah(data.platformProfit), change: "Potongan Fee", icon: IconWallet, gradient: "from-primary to-purple-500" },
   ];
   return (
     <PageTransition className="space-y-6">
@@ -60,7 +60,7 @@ export function AdminOverview({ userName, data }: { userName: string; data: Admi
           <Link href="/dashboard/users">
             <Card className="group border-border/50 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all duration-300">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-secondary flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                   <IconUsers size={24} />
                 </div>
                 <div className="flex-1">

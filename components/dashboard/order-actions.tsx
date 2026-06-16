@@ -117,7 +117,7 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole, currentPro
             <div className="relative">
               <div className="h-2 bg-accent rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -165,7 +165,7 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole, currentPro
           </p>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button className="w-full h-11 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25" disabled={isPending}>
+              <Button className="w-full h-11 rounded-xl bg-brand-gradient text-white hover:opacity-90 shadow-lg shadow-primary/25" disabled={isPending}>
                 <IconSend size={16} className="mr-2" />
                 Submit Hasil Kerja
               </Button>
@@ -179,7 +179,7 @@ export function OrderActions({ orderId, taskId, taskStatus, userRole, currentPro
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction onClick={(e) => { e.preventDefault(); handleSubmitWork(); }} className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
+                <AlertDialogAction onClick={(e) => { e.preventDefault(); handleSubmitWork(); }} className="bg-brand-gradient text-white">
                   {isPending ? <IconLoader2 className="animate-spin mr-2" size={16} /> : null}
                   Ya, Submit Hasil
                 </AlertDialogAction>

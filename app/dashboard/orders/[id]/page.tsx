@@ -171,7 +171,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </div>
                 <div className="h-2.5 bg-accent rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
                     style={{ width: `${order.task.status === "IN_REVIEW" ? 100 : order.progress || 0}%` }}
                   />
                 </div>

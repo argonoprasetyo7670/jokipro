@@ -48,7 +48,7 @@ const ROLE_CONFIG: Record<
   ADMIN: {
     label: "Admin",
     color: "text-violet-700 dark:text-violet-400",
-    bg: "bg-violet-100 dark:bg-violet-950/50",
+    bg: "bg-blue-100 dark:bg-violet-950/50",
     icon: <IconShieldCheck size={12} />,
   },
   CLIENT: {
@@ -113,7 +113,7 @@ export function UserTable({ users }: { users: UserWithProfile[] }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <IconUsers size={20} className="text-violet-500" />
+              <IconUsers size={20} className="text-primary" />
               Semua Pengguna
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5">
@@ -151,7 +151,7 @@ export function UserTable({ users }: { users: UserWithProfile[] }) {
               </SelectItem>
               <SelectItem value="ADMIN">
                 <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-violet-500" />
+                  <span className="w-2 h-2 rounded-full bg-primary" />
                   Admin ({roleCounts.ADMIN})
                 </span>
               </SelectItem>

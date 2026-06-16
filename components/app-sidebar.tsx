@@ -81,14 +81,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="hover:bg-transparent active:bg-transparent">
               <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center">
-                  <Image src="/logo.png" alt="EduTasky Logo" width={32} height={32} className="object-contain drop-shadow-md" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="text-xl font-bold tracking-tight">
-                    Edu<span className="text-sidebar-primary">Tasky</span>
-                  </span>
-                </div>
+                <Image src="/logo.png" alt="EduTasky Logo" width={300} height={200} className="w-auto h-16 object-contain drop-shadow-md" />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

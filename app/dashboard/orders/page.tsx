@@ -167,7 +167,7 @@ export default async function OrdersPage(props: { searchParams?: Promise<{ statu
                               </div>
                               <div className="h-2 bg-accent rounded-full overflow-hidden">
                                 <div
-                                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
+                                  className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
                                   style={{ width: `${progress}%` }}
                                 />
                               </div>

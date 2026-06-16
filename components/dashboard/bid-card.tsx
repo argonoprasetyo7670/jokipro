@@ -193,7 +193,7 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
               <AlertDialogTrigger asChild>
                 <Button
                   size="sm"
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25"
+                  className="w-full sm:w-auto rounded-xl bg-brand-gradient text-white text-xs hover:opacity-90 shadow-lg shadow-primary/25"
                 >
                   Pilih Worker
                 </Button>
@@ -215,7 +215,7 @@ export function BidCard({ bid, userRole, taskStatus }: BidCardProps) {
                       handleAcceptBid();
                     }}
                     disabled={isAccepting}
-                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+                    className="bg-brand-gradient text-white"
                   >
                     {isAccepting ? "Memproses..." : "Ya, Pilih Worker Ini"}
                   </AlertDialogAction>

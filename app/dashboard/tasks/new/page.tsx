@@ -349,7 +349,7 @@ export default function NewTaskPage() {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold px-8 h-12 hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all disabled:opacity-70"
+            className="w-full sm:w-auto rounded-xl bg-brand-gradient text-white font-semibold px-8 h-12 hover:opacity-90 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all disabled:opacity-70"
           >
             {isPending ? (
               <>

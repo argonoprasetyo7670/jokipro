@@ -29,7 +29,7 @@ function getInitials(name: string) {
 export function UserAvatar({
   name,
   image,
-  gradient = "from-violet-500 to-indigo-600",
+  gradient = "from-primary to-secondary",
   size = "md",
   className,
 }: UserAvatarProps) {

@@ -103,7 +103,7 @@ export default function WorkerOnboardingPage() {
         {/* Progress bar */}
         <div className="h-1.5 bg-accent rounded-full mt-4 overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500"
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
@@ -315,7 +315,7 @@ export default function WorkerOnboardingPage() {
           <Button
             onClick={() => setStep((s) => s + 1)}
             disabled={!canProceed()}
-            className="rounded-xl gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25"
+            className="rounded-xl gap-2 bg-brand-gradient text-white hover:opacity-90 shadow-lg shadow-primary/25"
           >
             Lanjut
             <IconArrowRight size={16} />

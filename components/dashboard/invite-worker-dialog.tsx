@@ -30,7 +30,7 @@ export function InviteWorkerDialog({ workerName, workerId }: InviteWorkerDialogP
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 mt-6">
+        <Button className="w-full rounded-xl bg-brand-gradient text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 mt-6">
           Tawarkan Pekerjaan
         </Button>
       </DialogTrigger>
@@ -59,7 +59,7 @@ export function InviteWorkerDialog({ workerName, workerId }: InviteWorkerDialogP
             <Textarea id="description" required rows={4} placeholder="Jelaskan detail spesifik pekerjaan yang Anda inginkan..." className="mt-1.5 rounded-xl resize-none" />
           </div>
           <div className="pt-4">
-            <Button type="submit" disabled={isLoading} className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 gap-2">
+            <Button type="submit" disabled={isLoading} className="w-full rounded-xl bg-brand-gradient text-white font-semibold hover:opacity-90 gap-2">
               {isLoading ? <IconLoader2 className="animate-spin" size={16} /> : <IconSend size={16} />}
               Kirim Tawaran
             </Button>

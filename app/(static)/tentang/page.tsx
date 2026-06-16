@@ -27,7 +27,7 @@ export default function TentangPage() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold mt-3 tracking-tight">
             Misi Kami untuk{" "}
-            <span className="bg-gradient-to-r from-violet-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-secondary via-primary to-blue-700 bg-clip-text text-transparent">
               Membantu Indonesia
             </span>
           </h1>
@@ -81,7 +81,7 @@ export default function TentangPage() {
                 title: "Transparansi",
                 description:
                   "Sistem bidding terbuka, rating publik, dan portofolio terverifikasi. Anda selalu tahu dengan siapa Anda bekerja.",
-                gradient: "from-violet-500 to-indigo-500",
+                gradient: "from-primary to-secondary",
               },
               {
                 icon: <IconHeart size={24} />,
@@ -109,7 +109,7 @@ export default function TentangPage() {
                 title: "Aksesibilitas",
                 description:
                   "Platform yang mudah digunakan untuk semua kalangan. Gratis pendaftaran, tanpa biaya berlangganan.",
-                gradient: "from-indigo-500 to-purple-500",
+                gradient: "from-secondary to-primary",
               },
             ].map((value) => (
               <div
@@ -132,18 +132,18 @@ export default function TentangPage() {
 
         {/* CTA */}
         <div className="rounded-3xl overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700" />
+          <div className="absolute inset-0 bg-brand-gradient" />
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx%3D%221%22%20cy%3D%221%22%20r%3D%221%22%20fill%3D%22rgba(255%2C255%2C255%2C0.07)%22%2F%3E%3C%2Fsvg%3E')] bg-repeat" />
           <div className="relative px-8 py-12 sm:px-16 sm:py-16 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-3">
               Bergabung Bersama Kami
             </h2>
-            <p className="text-violet-100 max-w-md mx-auto mb-6">
+            <p className="text-blue-100 max-w-md mx-auto mb-6">
               Mulai sekarang, gratis tanpa biaya pendaftaran.
             </p>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-white text-violet-700 px-8 py-3.5 hover:bg-violet-50 transition-all shadow-xl hover:scale-105"
+              className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-white text-primary px-8 py-3.5 hover:bg-blue-50 transition-all shadow-xl hover:scale-105"
             >
               Daftar Sekarang
             </Link>

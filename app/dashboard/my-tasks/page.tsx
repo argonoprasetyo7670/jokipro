@@ -46,7 +46,7 @@ export default async function MyTasksPage() {
             </p>
           </div>
           <Link href="/dashboard/tasks/new">
-            <Button className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 gap-2 rounded-xl">
+            <Button className="w-full sm:w-auto bg-brand-gradient text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 gap-2 rounded-xl">
               <IconPlus size={18} />
               Buat Tugas Baru
             </Button>

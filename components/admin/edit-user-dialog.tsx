@@ -152,7 +152,7 @@ export function EditUserDialog({ user }: EditUserDialogProps) {
               <SelectContent>
                 <SelectItem value="ADMIN">
                   <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-violet-500" />
+                    <span className="w-2 h-2 rounded-full bg-primary" />
                     Admin
                   </span>
                 </SelectItem>
@@ -216,7 +216,7 @@ export function EditUserDialog({ user }: EditUserDialogProps) {
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+              className="flex-1 bg-brand-gradient hover:from-violet-700 hover:to-indigo-700 text-white"
               disabled={isPending}
             >
               {isPending ? (

@@ -19,12 +19,12 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5">
       <div className="absolute inset-0 bg-background/60 backdrop-blur-xl" />
-      <div className="relative mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+      <div className="relative mx-auto max-w-7xl px-6 h-24 sm:h-28 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Edutasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
-          <span className="text-lg font-bold tracking-tight">
+          <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
+          {/* <span className="text-lg font-bold tracking-tight">
             Edu<span className="text-primary">Tasky</span>
-          </span>
+          </span> */}
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -49,7 +49,7 @@ function Navbar() {
           </Link>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-2.5 hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40"
+            className="inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-brand-gradient text-white px-5 py-2.5 hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40"
           >
             Daftar Gratis
             <IconArrowRight size={16} />
@@ -66,9 +66,9 @@ function Hero() {
     <section className="relative pt-32 pb-20 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
       </div>
 
       {/* Grid pattern */}
@@ -83,7 +83,7 @@ function Hero() {
 
       <div className="relative mx-auto max-w-7xl px-6 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 text-violet-300 text-xs font-medium mb-8 animate-slide-up">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/10 text-blue-300 text-xs font-medium mb-8 animate-slide-up">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
           Platform #1 di Indonesia
         </div>
@@ -91,8 +91,8 @@ function Hero() {
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           Tugas Menumpuk?
           <br />
-          <span className="bg-gradient-to-r from-violet-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent animate-gradient-x">
-            Serahkan ke Pro.
+          <span className="bg-gradient-to-r from-secondary via-primary to-blue-700 bg-clip-text text-transparent animate-gradient-x">
+            Serahkan ke EduTasky.
           </span>
         </h1>
 
@@ -105,7 +105,7 @@ function Hero() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 hover:from-violet-500 hover:to-indigo-500 transition-all shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105"
+            className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-brand-gradient text-white px-8 py-4 hover:opacity-90 transition-all shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:scale-105"
           >
             Mulai Sekarang — Gratis
             <IconArrowRight size={20} />
@@ -128,7 +128,7 @@ function Hero() {
             { value: "100%", label: "Escrow Aman" },
           ].map((stat) => (
             <div key={stat.label} className="glass rounded-2xl px-4 py-5 text-center">
-              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-secondary via-primary to-blue-700 bg-clip-text text-transparent">
                 {stat.value}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</div>
@@ -148,7 +148,7 @@ function Features() {
       title: "Bidding Transparan",
       description:
         "Pasang budget, terima penawaran dari worker terbaik. Bandingkan harga, rating, dan portofolio sebelum memilih.",
-      gradient: "from-violet-500 to-indigo-500",
+      gradient: "from-primary to-secondary",
     },
     {
       icon: <IconShieldCheck size={24} />,
@@ -243,7 +243,7 @@ function HowItWorks() {
 
   return (
     <section id="how-it-works" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
 
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
@@ -267,7 +267,7 @@ function HowItWorks() {
                 <div className="hidden lg:block absolute top-10 left-[60%] w-full h-px bg-gradient-to-r from-border to-transparent" />
               )}
               <div className="relative">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/10 to-indigo-500/10 border border-violet-500/20 flex items-center justify-center mb-5 group-hover:from-violet-500/20 group-hover:to-indigo-500/20 transition-all duration-300">
+                <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-all duration-300">
                   <span className="text-primary">{s.icon}</span>
                 </div>
                 <span className="text-xs font-bold text-primary/50 uppercase tracking-widest">
@@ -358,7 +358,7 @@ function Testimonials() {
 
   return (
     <section id="testimonials" className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/[0.02] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent" />
 
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
@@ -403,21 +403,21 @@ function CTA() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="relative rounded-3xl overflow-hidden">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700" />
+          <div className="absolute inset-0 bg-brand-gradient" />
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx%3D%221%22%20cy%3D%221%22%20r%3D%221%22%20fill%3D%22rgba(255%2C255%2C255%2C0.07)%22%2F%3E%3C%2Fsvg%3E')] bg-repeat" />
 
           <div className="relative px-8 py-16 sm:px-16 sm:py-20 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4">
               Siap Menyelesaikan Tugas?
             </h2>
-            <p className="text-violet-100 max-w-lg mx-auto mb-8 text-lg">
+            <p className="text-blue-100 max-w-lg mx-auto mb-8 text-lg">
               Bergabung sekarang dan temukan worker profesional untuk semua
               jenis tugas Anda. Gratis, tanpa biaya pendaftaran.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-white text-violet-700 px-8 py-4 hover:bg-violet-50 transition-all shadow-xl hover:scale-105"
+                className="inline-flex items-center gap-2 text-base font-semibold rounded-full bg-white text-primary px-8 py-4 hover:bg-blue-50 transition-all shadow-xl hover:scale-105"
               >
                 Daftar Sebagai Client
                 <IconArrowRight size={20} />
@@ -445,10 +445,7 @@ function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Image src="/logo.png" alt="Edutasky Logo" width={28} height={28} className="w-7 h-7 rounded-lg object-contain" />
-              <span className="text-sm font-bold">
-                Edu<span className="text-primary">Tasky</span>
-              </span>
+              <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Platform marketplace terpercaya untuk jasa pengerjaan tugas. Cepat, aman, dan bergaransi.

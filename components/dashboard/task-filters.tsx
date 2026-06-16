@@ -82,7 +82,7 @@ export function TaskFilters() {
               variant={isActive ? "default" : "outline"}
               size="sm"
               className={`flex-shrink-0 rounded-full transition-all ${
-                isActive ? "shadow-lg shadow-primary/25 bg-gradient-to-r from-violet-600 to-indigo-600 border-transparent" : "hover:border-primary/50"
+                isActive ? "shadow-lg shadow-primary/25 bg-brand-gradient border-transparent" : "hover:border-primary/50"
               }`}
             >
               {cat}

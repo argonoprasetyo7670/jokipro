@@ -80,7 +80,7 @@ export default function WorkerOnboardingPage() {
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Ccircle%20cx%3D%221%22%20cy%3D%221%22%20r%3D%221%22%20fill%3D%22rgba(255%2C255%2C255%2C0.05)%22%2F%3E%3C%2Fsvg%3E')] bg-repeat" />
           <div className="relative z-10 flex items-center gap-4 text-white">
             <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-              <Image src="/logo.png" alt="Edutasky Logo" width={40} height={40} className="object-contain drop-shadow-md brightness-0 invert" />
+              <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 object-contain drop-shadow-md brightness-0 invert" />
             </div>
             <div>
               <h1 className="text-2xl font-bold">Lengkapi Profil Worker</h1>
@@ -126,7 +126,7 @@ export default function WorkerOnboardingPage() {
 
             <MotionDiv variants={fadeInUp} className="space-y-4 pt-4">
               <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground/80 border-b pb-2">
-                <IconSchool size={20} className="text-indigo-500" />
+                <IconSchool size={20} className="text-secondary" />
                 Latar Belakang Pendidikan
               </h2>
 

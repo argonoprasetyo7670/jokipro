@@ -49,7 +49,7 @@ export function ProfileAvatar({ initials, imageUrl }: ProfileAvatarProps) {
 
   return (
     <div className="relative">
-      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-2xl sm:text-3xl font-bold border-4 border-card shadow-xl overflow-hidden relative">
+      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl sm:text-3xl font-bold border-4 border-card shadow-xl overflow-hidden relative">
         {imageUrl ? (
           <img src={imageUrl} alt="Avatar" className="w-full h-full object-cover" />
         ) : (

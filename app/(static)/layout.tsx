@@ -7,12 +7,9 @@ function StaticNavbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5">
       <div className="absolute inset-0 bg-background/60 backdrop-blur-xl" />
-      <div className="relative mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+      <div className="relative mx-auto max-w-7xl px-6 h-24 sm:h-28 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Edutasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
-          <span className="text-lg font-bold tracking-tight">
-            Edu<span className="text-primary">Tasky</span>
-          </span>
+          <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -34,7 +31,7 @@ function StaticNavbar() {
           <ThemeToggle size="sm" />
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-2.5 hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25"
+            className="inline-flex items-center gap-2 text-sm font-semibold rounded-full bg-brand-gradient text-white px-5 py-2.5 hover:opacity-90 transition-all shadow-lg shadow-primary/25"
           >
             Daftar Gratis
             <IconArrowRight size={16} />
@@ -53,10 +50,7 @@ function StaticFooter() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Image src="/logo.png" alt="Edutasky Logo" width={28} height={28} className="w-7 h-7 rounded-lg object-contain" />
-              <span className="text-sm font-bold">
-                Edu<span className="text-primary">Tasky</span>
-              </span>
+              <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Platform marketplace terpercaya untuk jasa pengerjaan tugas. Cepat, aman, dan bergaransi.
@@ -116,7 +110,7 @@ export default function StaticPagesLayout({
   return (
     <>
       <StaticNavbar />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-24 sm:pt-28">
         {children}
       </main>
       <StaticFooter />

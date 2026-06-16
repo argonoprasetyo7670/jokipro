@@ -47,7 +47,7 @@ export function ThemeToggle({ className, size = "default" }: ThemeToggleProps) {
       {theme === "dark" ? (
         <IconSun size={size === "sm" ? 16 : 18} className="text-amber-400" />
       ) : (
-        <IconMoon size={size === "sm" ? 16 : 18} className="text-indigo-500" />
+        <IconMoon size={size === "sm" ? 16 : 18} className="text-secondary" />
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>

@@ -98,7 +98,7 @@ export function WalletContent({ data }: { data: WalletData }) {
           <Card className="border-border/50 overflow-hidden">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shrink-0">
                   <IconWallet size={20} />
                 </div>
                 <div className="min-w-0">
@@ -205,7 +205,7 @@ export function WalletContent({ data }: { data: WalletData }) {
           <div className="p-5 border-b">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="font-semibold flex items-center gap-2">
-                <IconReceipt size={18} className="text-violet-500" />
+                <IconReceipt size={18} className="text-primary" />
                 Riwayat Transaksi
               </h2>
               <div className="flex gap-2">

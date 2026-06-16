@@ -67,7 +67,7 @@ export function CreateUserDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="h-9 rounded-xl gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md shadow-violet-500/20 transition-all duration-200">
+        <Button className="h-9 rounded-xl gap-2 bg-brand-gradient hover:from-violet-700 hover:to-indigo-700 text-white shadow-md shadow-primary/20 transition-all duration-200">
           <IconPlus size={16} />
           Tambah Pengguna
         </Button>
@@ -144,7 +144,7 @@ export function CreateUserDialog() {
               <SelectContent>
                 <SelectItem value="ADMIN">
                   <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-violet-500" />
+                    <span className="w-2 h-2 rounded-full bg-primary" />
                     Admin
                   </span>
                 </SelectItem>
@@ -176,7 +176,7 @@ export function CreateUserDialog() {
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+              className="flex-1 bg-brand-gradient hover:from-violet-700 hover:to-indigo-700 text-white"
               disabled={isPending}
             >
               {isPending ? (

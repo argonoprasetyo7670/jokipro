@@ -34,7 +34,7 @@ interface WorkerData {
 
 export function WorkerOverview({ userName, data }: { userName: string; data: WorkerData }) {
   const stats = [
-    { label: "Tugas Aktif", value: data.activeOrders.toString(), change: "Sedang dikerjakan", icon: IconBriefcase, gradient: "from-violet-500 to-indigo-500" },
+    { label: "Tugas Aktif", value: data.activeOrders.toString(), change: "Sedang dikerjakan", icon: IconBriefcase, gradient: "from-primary to-secondary" },
     { label: "Pendapatan Bersih", value: formatRupiah(data.totalIncome), change: "Total penghasilan", icon: IconCash, gradient: "from-emerald-500 to-teal-500" },
     { label: "Rating Pekerja", value: data.rating.toFixed(1), change: "Bintang", icon: IconStarFilled, gradient: "from-amber-500 to-orange-500" },
     { label: "Tugas Selesai", value: data.completedOrders.toString(), change: "Berhasil ditarik", icon: IconTrendingUp, gradient: "from-pink-500 to-rose-500" },
@@ -75,9 +75,9 @@ export function WorkerOverview({ userName, data }: { userName: string; data: Wor
       <div className="grid sm:grid-cols-2 gap-4">
         <AnimatedCard>
           <Link href="/dashboard/tasks">
-            <Card className="group border-border/50 hover:border-violet-500/30 hover:bg-violet-500/5 transition-all duration-300">
+            <Card className="group border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                   <IconBriefcase size={24} />
                 </div>
                 <div className="flex-1">

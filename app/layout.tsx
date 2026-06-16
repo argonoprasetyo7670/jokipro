@@ -12,9 +12,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Edutasky — Platform Joki Tugas Profesional",
+  title: "Edutasky — Platform Bantuan Tugas Profesional",
   description:
-    "Edutasky adalah platform marketplace terpercaya untuk jasa pengerjaan tugas sekolah, kuliah, dan pekerjaan. Cepat, aman, dan bergaransi.",
+    "Edutasky adalah platform marketplace terpercaya untuk bantuan tugas sekolah, kuliah, dan pekerjaan. Cepat, aman, dan bergaransi.",
   keywords: ["joki tugas", "jasa tugas kuliah", "joki skripsi", "freelance tugas"],
 };
 

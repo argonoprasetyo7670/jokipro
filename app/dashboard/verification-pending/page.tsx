@@ -106,7 +106,7 @@ export default function VerificationPendingPage() {
       <AnimatedCard className="flex flex-col gap-3">
         {status === "REJECTED" && (
           <Link href="/dashboard/worker-onboarding">
-            <Button className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold h-12 hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 gap-2">
+            <Button className="w-full rounded-xl bg-brand-gradient text-white font-semibold h-12 hover:opacity-90 shadow-lg shadow-primary/25 gap-2">
               <IconEdit size={18} />
               Edit & Submit Ulang
             </Button>

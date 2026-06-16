@@ -66,9 +66,9 @@ export default function RegisterPage() {
     <PageTransition className="w-full max-w-md space-y-0">
       {/* Mobile logo */}
       <MotionDiv variants={fadeInUp} className="flex items-center gap-2 mb-8 lg:hidden">
-        <Image src="/logo.png" alt="Edutasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
+        <Image src="/logo.png" alt="Edutasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
         <span className="text-lg font-bold">
-          Joki<span className="text-primary">Pro</span>
+          Edu<span className="text-primary">Tasky</span>
         </span>
       </MotionDiv>
 
@@ -85,8 +85,8 @@ export default function RegisterPage() {
           type="button"
           onClick={() => setValue("role", "CLIENT", { shouldValidate: true })}
           className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${selectedRole === "CLIENT"
-              ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-              : "border-border hover:border-primary/30 bg-card"
+            ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+            : "border-border hover:border-primary/30 bg-card"
             }`}
         >
           {selectedRole === "CLIENT" && (
@@ -94,7 +94,7 @@ export default function RegisterPage() {
               <IconCheck size={12} className="text-white" />
             </div>
           )}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/10 to-indigo-500/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <IconBriefcase size={20} className="text-primary" />
           </div>
           <span className="font-semibold text-sm">Client</span>
@@ -107,8 +107,8 @@ export default function RegisterPage() {
           type="button"
           onClick={() => setValue("role", "WORKER", { shouldValidate: true })}
           className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all duration-200 ${selectedRole === "WORKER"
-              ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-              : "border-border hover:border-primary/30 bg-card"
+            ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+            : "border-border hover:border-primary/30 bg-card"
             }`}
         >
           {selectedRole === "WORKER" && (
@@ -208,7 +208,7 @@ export default function RegisterPage() {
           <Button
             type="submit"
             disabled={!selectedRole || isPending}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
+            className="w-full h-12 rounded-xl bg-brand-gradient text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
           >
             {isPending ? "Mendaftar..." : selectedRole ? `Daftar Sebagai ${selectedRole === "CLIENT" ? "Client" : "Worker"}` : "Pilih Role Terlebih Dahulu"}
           </Button>

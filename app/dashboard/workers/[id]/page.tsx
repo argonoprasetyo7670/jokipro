@@ -47,7 +47,7 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ i
         <div className="space-y-6">
           <AnimatedCard>
             <Card className="border-border/50 relative overflow-hidden">
-              <div className="h-24 bg-gradient-to-r from-violet-600 to-indigo-600 absolute top-0 left-0 right-0 z-0" />
+              <div className="h-24 bg-brand-gradient absolute top-0 left-0 right-0 z-0" />
               <CardContent className="p-6 pt-12 relative z-10 flex flex-col items-center text-center">
                 <UserAvatar name={worker.name} image={worker.image} size="xl" className="border-4 border-card mb-4 shadow-xl" />
 

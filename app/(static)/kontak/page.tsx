@@ -24,7 +24,7 @@ export default function KontakPage() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold mt-3 tracking-tight">
             Ada Pertanyaan?{" "}
-            <span className="bg-gradient-to-r from-violet-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-secondary via-primary to-blue-700 bg-clip-text text-transparent">
               Kami Siap Membantu
             </span>
           </h1>
@@ -37,7 +37,7 @@ export default function KontakPage() {
         {/* Contact Cards */}
         <div className="grid sm:grid-cols-2 gap-6 mb-12">
           <div className="group rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 hover:bg-card transition-all duration-300">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300">
               <IconMail size={24} />
             </div>
             <h3 className="font-semibold text-lg mb-1">Email</h3>

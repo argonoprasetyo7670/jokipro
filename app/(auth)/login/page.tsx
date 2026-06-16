@@ -43,7 +43,7 @@ export default function LoginPage() {
     <PageTransition className="w-full max-w-md space-y-0">
       {/* Mobile logo */}
       <MotionDiv variants={fadeInUp} className="flex items-center gap-2 mb-8 lg:hidden">
-        <Image src="/logo.png" alt="EduTasky Logo" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
+        <Image src="/logo.png" alt="EduTasky Logo" width={300} height={200} className="w-auto h-16 sm:h-20 md:h-24 object-contain drop-shadow-md" />
         <span className="text-lg font-bold">
           Edu<span className="text-primary">Tasky</span>
         </span>
@@ -117,7 +117,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:pointer-events-none"
+            className="w-full h-12 rounded-xl bg-brand-gradient text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:pointer-events-none"
           >
             {isPending ? <IconLoader2 className="w-5 h-5 animate-spin" /> : "Masuk"}
           </Button>

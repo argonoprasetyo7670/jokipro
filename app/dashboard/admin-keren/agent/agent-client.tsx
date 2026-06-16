@@ -181,8 +181,8 @@ export function AgentDashboardClient({
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                <IconCoin className="text-violet-500" size={20} />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <IconCoin className="text-primary" size={20} />
               </div>
               <div>
                 <p className="text-2xl font-bold">${stats.totalCost.toFixed(4)}</p>

@@ -49,72 +49,72 @@
 }
 
 :root {
-  --background: oklch(0.985 0.002 270);
-  --foreground: oklch(0.145 0.015 270);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.015 270);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.015 270);
-  --primary: oklch(0.488 0.243 264.376);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.96 0.015 270);
-  --secondary-foreground: oklch(0.205 0.015 270);
-  --muted: oklch(0.96 0.01 270);
-  --muted-foreground: oklch(0.5 0.02 270);
-  --accent: oklch(0.93 0.04 270);
-  --accent-foreground: oklch(0.35 0.15 270);
+  --background: #F8FBFF;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #3FA9F5;
+  --primary-foreground: #ffffff;
+  --secondary: #67C1FF;
+  --secondary-foreground: #ffffff;
+  --muted: #AEE3FF;
+  --muted-foreground: #1D6FD8;
+  --accent: #AEE3FF;
+  --accent-foreground: #1D6FD8;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.015 270);
-  --input: oklch(0.91 0.015 270);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.6 0.2 150);
-  --chart-3: oklch(0.7 0.15 50);
-  --chart-4: oklch(0.65 0.2 330);
+  --border: #AEE3FF;
+  --input: #AEE3FF;
+  --ring: #3FA9F5;
+  --chart-1: #3FA9F5;
+  --chart-2: #67C1FF;
+  --chart-3: #AEE3FF;
+  --chart-4: #1D6FD8;
   --chart-5: oklch(0.55 0.18 200);
   --radius: 0.75rem;
-  --sidebar: oklch(0.97 0.01 270);
-  --sidebar-foreground: oklch(0.145 0.015 270);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.93 0.04 270);
-  --sidebar-accent-foreground: oklch(0.35 0.15 270);
-  --sidebar-border: oklch(0.91 0.015 270);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  --sidebar: #F8FBFF;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #3FA9F5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #AEE3FF;
+  --sidebar-accent-foreground: #1D6FD8;
+  --sidebar-border: #AEE3FF;
+  --sidebar-ring: #3FA9F5;
 }
 
 .dark {
-  --background: oklch(0.13 0.015 270);
-  --foreground: oklch(0.95 0.01 270);
-  --card: oklch(0.18 0.015 270);
-  --card-foreground: oklch(0.95 0.01 270);
-  --popover: oklch(0.18 0.015 270);
-  --popover-foreground: oklch(0.95 0.01 270);
-  --primary: oklch(0.62 0.24 264.376);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.22 0.02 270);
-  --secondary-foreground: oklch(0.95 0.01 270);
-  --muted: oklch(0.22 0.015 270);
-  --muted-foreground: oklch(0.65 0.02 270);
-  --accent: oklch(0.25 0.04 270);
-  --accent-foreground: oklch(0.85 0.1 270);
+  --background: #0f172a;
+  --foreground: #F8FBFF;
+  --card: #1e293b;
+  --card-foreground: #F8FBFF;
+  --popover: #1e293b;
+  --popover-foreground: #F8FBFF;
+  --primary: #3FA9F5;
+  --primary-foreground: #ffffff;
+  --secondary: #1D6FD8;
+  --secondary-foreground: #ffffff;
+  --muted: #1e293b;
+  --muted-foreground: #AEE3FF;
+  --accent: #1D6FD8;
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.25 0.02 270);
-  --input: oklch(0.25 0.02 270);
-  --ring: oklch(0.62 0.24 264.376);
-  --chart-1: oklch(0.62 0.24 264.376);
-  --chart-2: oklch(0.6 0.2 150);
-  --chart-3: oklch(0.7 0.15 50);
-  --chart-4: oklch(0.65 0.2 330);
+  --border: #1D6FD8;
+  --input: #1D6FD8;
+  --ring: #3FA9F5;
+  --chart-1: #3FA9F5;
+  --chart-2: #67C1FF;
+  --chart-3: #AEE3FF;
+  --chart-4: #1D6FD8;
   --chart-5: oklch(0.55 0.18 200);
-  --sidebar: oklch(0.16 0.015 270);
-  --sidebar-foreground: oklch(0.95 0.01 270);
-  --sidebar-primary: oklch(0.62 0.24 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.22 0.03 270);
-  --sidebar-accent-foreground: oklch(0.85 0.1 270);
-  --sidebar-border: oklch(0.25 0.02 270);
-  --sidebar-ring: oklch(0.62 0.24 264.376);
+  --sidebar: #0f172a;
+  --sidebar-foreground: #F8FBFF;
+  --sidebar-primary: #3FA9F5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1D6FD8;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1D6FD8;
+  --sidebar-ring: #3FA9F5;
 }
 
 @layer base {
@@ -176,6 +176,15 @@
 .animate-gradient-x {
   background-size: 200% 200%;
   animation: gradient-x 3s ease infinite;
+}
+
+.bg-brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    #67C1FF 0%,
+    #3FA9F5 50%,
+    #1D6FD8 100%
+  );
 }
 
 .glass {

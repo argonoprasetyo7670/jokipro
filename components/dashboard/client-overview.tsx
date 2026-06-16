@@ -46,7 +46,7 @@ export function ClientOverview({ userName, data }: { userName: string; data: Cli
   const [activeDialog, setActiveDialog] = useState<"activeTasks" | "totalSpent" | "inReviewTasks" | "completedTasks" | null>(null);
 
   const stats = [
-    { id: "activeTasks", label: "Tugas Aktif", value: data.activeTasks.toString(), change: "Sedang dikerjakan", icon: IconBriefcase, gradient: "from-violet-500 to-indigo-500", list: data.activeTasksList },
+    { id: "activeTasks", label: "Tugas Aktif", value: data.activeTasks.toString(), change: "Sedang dikerjakan", icon: IconBriefcase, gradient: "from-primary to-secondary", list: data.activeTasksList },
     { id: "totalSpent", label: "Total Pengeluaran", value: formatRupiah(data.totalSpent), change: "Keseluruhan", icon: IconCash, gradient: "from-emerald-500 to-teal-500", list: data.spentOrdersList },
     { id: "inReviewTasks", label: "Menunggu Review", value: data.inReviewTasks.toString(), change: "Perlu konfirmasi", icon: IconClock, gradient: "from-amber-500 to-orange-500", list: data.inReviewTasksList },
     { id: "completedTasks", label: "Tugas Selesai", value: data.completedTasks.toString(), change: "Keseluruhan", icon: IconCheck, gradient: "from-blue-500 to-cyan-500", list: data.completedTasksList },
@@ -73,9 +73,9 @@ export function ClientOverview({ userName, data }: { userName: string; data: Cli
       <div className="grid sm:grid-cols-2 gap-4">
         <AnimatedCard>
           <Link href="/dashboard/tasks/new">
-            <Card className="group border-border/50 hover:border-violet-500/30 hover:bg-violet-500/5 transition-all duration-300">
+            <Card className="group border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                   <IconBriefcase size={24} />
                 </div>
                 <div className="flex-1">

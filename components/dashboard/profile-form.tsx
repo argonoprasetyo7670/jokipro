@@ -161,7 +161,7 @@ export function ProfileForm({ user }: { user: any }) {
         <Button 
           type="submit" 
           disabled={isPending}
-          className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/25 gap-2 w-full sm:w-auto"
+          className="rounded-xl bg-brand-gradient text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 gap-2 w-full sm:w-auto"
         >
           <IconDeviceFloppy size={18} />
           {isPending ? "Menyimpan..." : "Simpan Perubahan"}

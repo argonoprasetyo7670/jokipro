@@ -2,7 +2,7 @@
 
 ## Tentang Project
 
-**EduTasky** adalah marketplace jasa pengerjaan tugas (joki tugas) berbasis web. Platform ini menghubungkan **Client** (pemilik tugas) dengan **Worker** (pengerjak tugas) melalui sistem **bidding transparan**, **escrow payment**, dan **dispute resolution**.
+**EduTasky** adalah marketplace jasa pengerjaan tugas (bantuan tugas) berbasis web. Platform ini menghubungkan **Client** (pemilik tugas) dengan **Worker** (pengerjak tugas) melalui sistem **bidding transparan**, **escrow payment**, dan **dispute resolution**.
 
 ## Tech Stack
 

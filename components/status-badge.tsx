@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 type StatusType = "OPEN" | "IN_PROGRESS" | "REVIEW" | "IN_REVIEW" | "COMPLETED" | "DISPUTE" | "IN_DISPUTE" | "CANCELLED" | string;
 type UrgencyType = "HIGH" | "MEDIUM" | "LOW" | string;
 const statusConfig: Record<string, { label: string; className: string }> = {
-  OPEN: { label: "Terbuka", className: "bg-violet-500/10 text-violet-400 border-violet-500/20 hover:bg-violet-500/10" },
+  OPEN: { label: "Terbuka", className: "bg-primary/10 text-violet-400 border-primary/20 hover:bg-primary/10" },
   IN_PROGRESS: { label: "Dikerjakan", className: "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/10" },
   REVIEW: { label: "Review", className: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/10" },
   IN_REVIEW: { label: "Review", className: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/10" },
