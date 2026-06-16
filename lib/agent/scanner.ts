@@ -61,15 +61,20 @@ export async function scanAvailableTasks(agent: AgentProfile) {
 
 /**
  * Get IDs of tasks that already have a draft from a specific agent.
+ * Fixed: Now filters by agent user ID to avoid cross-agent exclusion.
  */
 async function getAlreadyDraftedTaskIds(agentUserId: string): Promise<string[]> {
   if (!agentUserId) return [];
 
-  // We store agentKey in the analysis JSON, but for now just check by type
   const drafts = await prisma.agentDraft.findMany({
     where: {
       type: "BID",
       rejected: false,
+      // Filter by specific agent via the analysis JSON field
+      analysis: {
+        path: ["agentUserId"],
+        equals: agentUserId,
+      },
     },
     select: { taskId: true },
   });

@@ -2,7 +2,7 @@
 // AI Agent Worker — API Route: Run Agent Cycle
 // =============================================
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { runAgentCycle } from "@/lib/agent/orchestrator";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
@@ -10,20 +10,17 @@ import { revalidatePath } from "next/cache";
 /**
  * POST /api/agent/run
  * 
- * Trigger a multi-agent cycle. Can be called by:
- * 1. Admin manually from dashboard
- * 2. Internal event trigger (task creation)
- * 3. External cron job with secret key
+ * Admin-only manual trigger to run a full agent cycle.
+ * Used from the admin dashboard to process pending orders,
+ * revisions, and any missed tasks.
+ * 
+ * Note: Normal task bidding is event-driven — triggered
+ * automatically when a client creates a new task.
  */
-export async function POST(request: NextRequest) {
-  const cronSecret = request.headers.get("x-cron-secret");
-  const isValidCron = cronSecret === process.env.AGENT_CRON_SECRET;
-
-  if (!isValidCron) {
-    const session = await auth();
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export async function POST() {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

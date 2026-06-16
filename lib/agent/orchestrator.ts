@@ -3,7 +3,7 @@
 // =============================================
 
 import { prisma } from "@/lib/prisma";
-import { agents, agentGlobalConfig } from "./config";
+import { agents, agentGlobalConfig, getAgentsForCategory } from "./config";
 import type { AgentProfile } from "./config";
 import { scanAvailableTasks, getAgentAcceptedOrders, getOrdersNeedingRevision } from "./scanner";
 import { analyzeTask } from "./analyzer";
@@ -53,10 +53,217 @@ async function ensureAgentUser(agent: AgentProfile): Promise<string> {
   return user.id;
 }
 
+// =============================================
+// EVENT-DRIVEN: Run agents for a specific task
+// =============================================
+
+/**
+ * Run agents ONLY for a specific newly created task.
+ * Called automatically when a client creates a new task.
+ * 
+ * Flow: Find matching agents → analyze → bid (no execute/revise)
+ */
+export async function runAgentForTask(taskId: string): Promise<{
+  agents: Record<string, AgentCycleResult>;
+  summary: AgentCycleResult;
+}> {
+  // Fetch the specific task
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: {
+      client: { select: { name: true, email: true } },
+      _count: { select: { bids: true } },
+    },
+  });
+
+  if (!task || task.status !== "OPEN") {
+    console.log(`🤖 Task ${taskId} not found or not OPEN, skipping agent cycle.`);
+    return {
+      agents: {},
+      summary: { scanned: 0, analyzed: 0, bidded: 0, executed: 0, skipped: 0, errors: [] },
+    };
+  }
+
+  // Find agents that can handle this task's category
+  const matchingAgents = getAgentsForCategory(task.category);
+
+  if (matchingAgents.length === 0) {
+    console.log(`🤖 No agents available for category: ${task.category}`);
+    return {
+      agents: {},
+      summary: { scanned: 1, analyzed: 0, bidded: 0, executed: 0, skipped: 1, errors: [] },
+    };
+  }
+
+  console.log(`🤖 Task "${task.title}" (${task.category}) → ${matchingAgents.length} matching agent(s)`);
+
+  // Ensure agent users exist
+  await Promise.all(matchingAgents.map((a) => ensureAgentUser(a)));
+
+  // Run matching agents in parallel — each only processes THIS task
+  const results = await Promise.allSettled(
+    matchingAgents.map(async (agent) => ({
+      key: agent.key,
+      result: await runSingleAgentForTask(agent, task),
+    }))
+  );
+
+  // Aggregate results
+  const agentResults: Record<string, AgentCycleResult> = {};
+  const summary: AgentCycleResult = {
+    scanned: 0, analyzed: 0, bidded: 0, executed: 0, skipped: 0, errors: [],
+  };
+
+  for (const r of results) {
+    if (r.status === "fulfilled") {
+      agentResults[r.value.key] = r.value.result;
+      summary.scanned += r.value.result.scanned;
+      summary.analyzed += r.value.result.analyzed;
+      summary.bidded += r.value.result.bidded;
+      summary.executed += r.value.result.executed;
+      summary.skipped += r.value.result.skipped;
+      summary.errors.push(...r.value.result.errors);
+    } else {
+      summary.errors.push(`Agent failed: ${r.reason}`);
+    }
+  }
+
+  console.log(`🤖 Task "${task.title}" done — Bid: ${summary.bidded}, Skip: ${summary.skipped}`);
+  return { agents: agentResults, summary };
+}
+
+/**
+ * Run a single agent's analyze → bid cycle for ONE specific task.
+ */
+async function runSingleAgentForTask(
+  agent: AgentProfile,
+  task: {
+    id: string;
+    title: string;
+    category: string;
+    description: string;
+    budget: number;
+    deadline: Date;
+    clientId: string;
+    attachment?: string | null;
+  }
+): Promise<AgentCycleResult> {
+  const result: AgentCycleResult = {
+    scanned: 1,
+    analyzed: 0,
+    bidded: 0,
+    executed: 0,
+    skipped: 0,
+    errors: [],
+  };
+
+  try {
+    // Check if agent already bid on this task
+    const existingBid = await prisma.bid.findFirst({
+      where: { taskId: task.id, workerId: agent.userId },
+    });
+    if (existingBid) {
+      console.log(`   ⏭️ [${agent.key}] Already bid on "${task.title}"`);
+      result.skipped = 1;
+      return result;
+    }
+
+    // Check concurrent limit
+    const currentOrders = await prisma.order.count({
+      where: {
+        workerId: agent.userId,
+        task: { status: { in: ["IN_PROGRESS", "IN_REVIEW"] } },
+      },
+    });
+    if (currentOrders >= agentGlobalConfig.maxConcurrentTasksPerAgent) {
+      console.log(`   ⚠️ [${agent.key}] Concurrent limit reached (${agentGlobalConfig.maxConcurrentTasksPerAgent})`);
+      result.skipped = 1;
+      return result;
+    }
+
+    // Analyze the task
+    const { analysis } = await analyzeTask(agent, task);
+    result.analyzed = 1;
+
+    if (!analysis.canHandle) {
+      console.log(`   ⏭️ [${agent.key}] Skip: "${task.title}" — ${analysis.reason}`);
+      result.skipped = 1;
+      return result;
+    }
+
+    // Generate and submit bid
+    await generateAndSubmitBid(agent, task, analysis);
+    result.bidded = 1;
+    console.log(`   ✅ [${agent.key}] Bid: "${task.title}" — Rp ${new Intl.NumberFormat("id-ID").format(analysis.suggestedPrice)}`);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    result.errors.push(`[${agent.key}] Task ${task.id}: ${msg}`);
+    console.error(`   ❌ [${agent.key}] Error: "${task.title}" — ${msg}`);
+  }
+
+  return result;
+}
+
+// =============================================
+// ADMIN MANUAL: Full cycle for all agents
+// =============================================
+
+/**
+ * Run ALL agents' complete cycle (admin manual trigger only).
+ * Scans all open tasks, executes accepted orders, handles revisions.
+ */
+export async function runAgentCycle(): Promise<{
+  agents: Record<string, AgentCycleResult>;
+  summary: AgentCycleResult;
+}> {
+  console.log("=".repeat(60));
+  console.log("🤖 Multi-Agent Full Cycle (Admin Manual)...");
+  console.log(`   Agents: ${agents.map((a) => `${a.name} (${a.key})`).join(", ")}`);
+  console.log("=".repeat(60));
+
+  // Ensure all agent users exist
+  await Promise.all(agents.map((a) => ensureAgentUser(a)));
+
+  // Run all agents in parallel
+  const results = await Promise.allSettled(
+    agents.map(async (agent) => ({
+      key: agent.key,
+      result: await runFullAgentCycle(agent),
+    }))
+  );
+
+  // Aggregate results
+  const agentResults: Record<string, AgentCycleResult> = {};
+  const summary: AgentCycleResult = {
+    scanned: 0, analyzed: 0, bidded: 0, executed: 0, skipped: 0, errors: [],
+  };
+
+  for (const r of results) {
+    if (r.status === "fulfilled") {
+      agentResults[r.value.key] = r.value.result;
+      summary.scanned += r.value.result.scanned;
+      summary.analyzed += r.value.result.analyzed;
+      summary.bidded += r.value.result.bidded;
+      summary.executed += r.value.result.executed;
+      summary.skipped += r.value.result.skipped;
+      summary.errors.push(...r.value.result.errors);
+    } else {
+      summary.errors.push(`Agent failed: ${r.reason}`);
+    }
+  }
+
+  console.log("=".repeat(60));
+  console.log("🤖 All agents done!", summary);
+  console.log("=".repeat(60));
+
+  return { agents: agentResults, summary };
+}
+
 /**
  * Run one agent's complete cycle: scan → analyze → bid → execute → revise.
+ * Only used for admin manual trigger.
  */
-async function runSingleAgentCycle(agent: AgentProfile): Promise<AgentCycleResult> {
+async function runFullAgentCycle(agent: AgentProfile): Promise<AgentCycleResult> {
   const result: AgentCycleResult = {
     scanned: 0,
     analyzed: 0,
@@ -66,7 +273,7 @@ async function runSingleAgentCycle(agent: AgentProfile): Promise<AgentCycleResul
     errors: [],
   };
 
-  console.log(`\n🤖 [${agent.key}] ${agent.name} starting cycle...`);
+  console.log(`\n🤖 [${agent.key}] ${agent.name} starting full cycle...`);
   console.log(`   Spesialisasi: ${agent.specializations.join(", ")}`);
 
   // =================== PHASE 1: SCAN & BID ===================
@@ -207,55 +414,4 @@ async function runSingleAgentCycle(agent: AgentProfile): Promise<AgentCycleResul
 
   console.log(`🤖 [${agent.key}] Cycle done — Scanned: ${result.scanned}, Bid: ${result.bidded}, Executed: ${result.executed}`);
   return result;
-}
-
-/**
- * Run ALL agents in parallel.
- * Each agent independently scans, bids, and executes for their specialization.
- */
-export async function runAgentCycle(): Promise<{
-  agents: Record<string, AgentCycleResult>;
-  summary: AgentCycleResult;
-}> {
-  console.log("=".repeat(60));
-  console.log("🤖 Multi-Agent Cycle Starting...");
-  console.log(`   Agents: ${agents.map((a) => `${a.name} (${a.key})`).join(", ")}`);
-  console.log("=".repeat(60));
-
-  // Ensure all agent users exist
-  await Promise.all(agents.map((a) => ensureAgentUser(a)));
-
-  // Run all agents in parallel
-  const results = await Promise.allSettled(
-    agents.map(async (agent) => ({
-      key: agent.key,
-      result: await runSingleAgentCycle(agent),
-    }))
-  );
-
-  // Aggregate results
-  const agentResults: Record<string, AgentCycleResult> = {};
-  const summary: AgentCycleResult = {
-    scanned: 0, analyzed: 0, bidded: 0, executed: 0, skipped: 0, errors: [],
-  };
-
-  for (const r of results) {
-    if (r.status === "fulfilled") {
-      agentResults[r.value.key] = r.value.result;
-      summary.scanned += r.value.result.scanned;
-      summary.analyzed += r.value.result.analyzed;
-      summary.bidded += r.value.result.bidded;
-      summary.executed += r.value.result.executed;
-      summary.skipped += r.value.result.skipped;
-      summary.errors.push(...r.value.result.errors);
-    } else {
-      summary.errors.push(`Agent failed: ${r.reason}`);
-    }
-  }
-
-  console.log("=".repeat(60));
-  console.log("🤖 All agents done!", summary);
-  console.log("=".repeat(60));
-
-  return { agents: agentResults, summary };
 }
