@@ -4,14 +4,26 @@ import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
+    pool: Pool | undefined;
 };
 
-function createPrismaClient() {
-    const pool = new Pool({
+// Cache Pool di globalThis supaya HMR tidak bikin pool baru terus-terusan
+const pool =
+    globalForPrisma.pool ??
+    new Pool({
         connectionString: process.env.DATABASE_URL!,
-        connectionTimeoutMillis: 10000, // Tunggu maks 10 detik jika DB serverless sedang "tidur"
-        max: 10, // Batasi jumlah koneksi per instance (aman untuk Vercel Serverless)
+        connectionTimeoutMillis: 10000,
+        // Di Vercel (production), 1 koneksi per instance sudah cukup
+        max: process.env.NODE_ENV === "production" ? 1 : 3,
+        // Tutup koneksi lebih cepat (5 detik) di production agar segera dikembalikan
+        idleTimeoutMillis: process.env.NODE_ENV === "production" ? 5000 : 10000,
     });
+
+if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.pool = pool;
+}
+
+function createPrismaClient() {
     const adapter = new PrismaPg(pool);
     return new PrismaClient({ adapter });
 }
