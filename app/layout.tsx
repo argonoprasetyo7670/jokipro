@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { NextAuthProvider } from "@/components/session-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { FloatingWA } from "@/components/floating-wa";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
             <TooltipProvider>
               {children}
               <Toaster />
+              <FloatingWA />
             </TooltipProvider>
           </ThemeProvider>
         </NextAuthProvider>

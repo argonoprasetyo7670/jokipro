@@ -6,6 +6,12 @@ import {
   IconClock,
   IconSend,
 } from "@tabler/icons-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
   title: "Hubungi Kami — Edutasky",
@@ -45,10 +51,10 @@ export default function KontakPage() {
               Kirim email untuk pertanyaan umum atau laporan masalah.
             </p>
             <a
-              href="mailto:support@edutasky.id"
+              href="mailto:edutasky.id@gmail.com"
               className="text-sm text-primary font-medium hover:underline"
             >
-              support@edutasky.id
+              edutasky.id@gmail.com
             </a>
           </div>
 
@@ -61,12 +67,12 @@ export default function KontakPage() {
               Chat langsung dengan tim support untuk respon cepat.
             </p>
             <a
-              href="https://wa.me/6281234567890"
+              href="https://wa.me/+628956228348750"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-emerald-500 font-medium hover:underline"
             >
-              +62 812-3456-7890
+              +628 9562 2834 8750
             </a>
           </div>
 
@@ -76,10 +82,10 @@ export default function KontakPage() {
             </div>
             <h3 className="font-semibold text-lg mb-1">Jam Operasional</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Tim support kami tersedia di jam kerja.
+              Tim support kami siap membantu Anda kapan saja.
             </p>
             <p className="text-sm text-foreground font-medium">
-              Senin — Jumat, 09:00 — 18:00 WIB
+              Senin — Minggu, 24 Jam / 7 Hari
             </p>
           </div>
 
@@ -92,7 +98,7 @@ export default function KontakPage() {
               Kantor pusat kami berlokasi di:
             </p>
             <p className="text-sm text-foreground font-medium">
-              Jakarta, Indonesia
+              Surabaya, Indonesia
             </p>
           </div>
         </div>
@@ -100,42 +106,39 @@ export default function KontakPage() {
         {/* FAQ Section */}
         <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-8 sm:p-10">
           <h2 className="text-xl font-bold mb-6">Pertanyaan Umum (FAQ)</h2>
-          <div className="space-y-6">
+          <Accordion type="single" collapsible className="w-full">
             {[
               {
-                q: "Berapa biaya untuk mendaftar di Edutasky?",
-                a: "Pendaftaran di Edutasky sepenuhnya gratis, baik untuk Client maupun Worker. Kami hanya mengenakan biaya platform sebesar 5% dari nilai transaksi yang berhasil.",
+                q: "Bagaimana Edutasky memastikan kualitas para Worker?",
+                a: "Setiap Worker yang bergabung di Edutasky harus melewati tahapan seleksi yang sangat ketat. Proses ini meliputi verifikasi identitas terpusat (KYC), pengecekan rekam jejak akademik/profesional, peninjauan portofolio, hingga uji kompetensi pada bidang keahlian masing-masing. Kami hanya meloloskan talenta terbaik agar tugas Anda selalu ditangani oleh profesional yang terpercaya.",
               },
               {
-                q: "Bagaimana sistem pembayaran bekerja?",
-                a: "Edutasky menggunakan sistem escrow. Setelah Client memilih Worker, dana akan ditahan oleh platform. Dana baru dirilis ke Worker setelah Client menyetujui hasil pekerjaan.",
+                q: "Bagaimana proses evaluasi Worker dilakukan?",
+                a: "Selain verifikasi dokumen awal, calon Worker harus mampu menyelesaikan studi kasus atau tes keahlian spesifik. Setelah bergabung, kami terus memantau performa dan kualitas kerja mereka secara berkala melalui sistem rating dan ulasan (review) dari para Client sebelumnya untuk memastikan standar tinggi tetap terjaga.",
+              },
+              {
+                q: "Berapa biaya untuk menggunakan platform Edutasky?",
+                a: "Pendaftaran di Edutasky sepenuhnya gratis, baik untuk Client maupun Worker. Anda bebas mencari Worker terbaik. Kami hanya mengenakan biaya platform sebesar 5% dari nilai transaksi yang berhasil.",
+              },
+              {
+                q: "Apakah sistem pembayarannya aman?",
+                a: "Sangat aman. Edutasky menggunakan sistem escrow (rekening bersama). Setelah Anda menyepakati harga dengan Worker, dana akan ditahan sementara oleh platform. Dana tersebut baru akan diteruskan ke Worker setelah Anda menerima dan menyetujui hasil pekerjaan secara penuh.",
               },
               {
                 q: "Apa yang terjadi jika saya tidak puas dengan hasil kerja?",
-                a: "Anda dapat meminta revisi kepada Worker. Jika tetap tidak puas, Anda dapat mengajukan dispute melalui platform dan tim admin kami akan menjadi mediator.",
+                a: "Kepuasan Anda adalah prioritas utama kami. Anda berhak meminta revisi kepada Worker sesuai dengan ruang lingkup kesepakatan awal. Jika masih ada kendala, fitur dispute kami memungkinkan tim admin Edutasky bertindak sebagai penengah untuk memastikan Anda mendapatkan solusi terbaik dan paling adil.",
               },
-              {
-                q: "Bagaimana proses verifikasi Worker?",
-                a: "Worker harus melalui proses KYC (Know Your Customer) dengan mengunggah CV, portofolio, dan data pendidikan. Tim admin akan memverifikasi sebelum Worker dapat mengajukan penawaran.",
-              },
-              {
-                q: "Berapa lama waktu respon dari tim support?",
-                a: "Kami berusaha merespon semua pertanyaan dalam waktu 1x24 jam pada hari kerja. Untuk masalah urgent, silakan hubungi kami melalui WhatsApp.",
-              },
-            ].map((faq) => (
-              <div
-                key={faq.q}
-                className="pb-6 border-b border-border/50 last:border-0 last:pb-0"
-              >
-                <h3 className="font-semibold text-sm text-foreground mb-2">
+            ].map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className="border-border/50">
+                <AccordionTrigger className="text-left font-semibold text-sm hover:no-underline hover:text-primary transition-colors py-4">
                   {faq.q}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
                   {faq.a}
-                </p>
-              </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </div>
       </div>
     </div>
